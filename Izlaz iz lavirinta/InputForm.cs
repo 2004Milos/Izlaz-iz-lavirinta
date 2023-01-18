@@ -20,6 +20,7 @@ namespace Izlaz_iz_lavirinta
             try
             {
                 ((MainForm)Application.OpenForms[0]).Dimenzije = new Tuple<int, int>((int)numericUpDownX.Value, (int)numericUpDownY.Value);
+                this.Close();
             }
             catch (Exception ex)
             {
