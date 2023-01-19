@@ -40,24 +40,8 @@ namespace Izlaz_iz_lavirinta
             inputForm.ShowDialog();
             this.Show();
             inputForm.Close();
-
-            int stranica_polja = (int) (this.Width * 0.9) / dimenzije.Item1;
-
-            for (int i = 0; i < dimenzije.Item2; i++)
-            {
-                for (int j = 0; j < dimenzije.Item1; j++)
-                {
-                    PictureBox polje = new PictureBox();
-                    polje.Parent = panel1;
-                    polje.Width = stranica_polja;
-                    polje.Height = stranica_polja;
-
-                    polje.Location = new Point(i * (stranica_polja+2), j * (stranica_polja+2));
-
-                    polje.BackColor = Color.Green;
-                }
-            }
-
+            panel1.Location = new Point(0, 30);
+            Lavirint lavirint = new Lavirint(this, panel1, dimenzije);
         }
     }
 }
