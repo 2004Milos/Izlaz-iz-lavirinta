@@ -14,14 +14,13 @@ namespace Izlaz_iz_lavirinta
         public Polje[,] polja;
         public int stranicaPolja;
         public Tuple<int,int> Dimenzije; //U poljima
+        static int minstranica = 13;
 
-        public Lavirint(MainForm mf, Panel panel, Tuple<int,int> dimenzije)
+        public Lavirint(int FormWidth, int FormHeight, Panel panel, Tuple<int,int> dimenzije)
         {
             Dimenzije = dimenzije; 
             this.panel = panel;
-            stranicaPolja = mf.Width / dimenzije.Item1;
-            if(stranicaPolja*Dimenzije.Item2 > 550)
-                stranicaPolja = mf.Height / dimenzije.Item2;
+            stranicaPolja = FormWidth / dimenzije.Item1;
 
             polja = new Polje[Dimenzije.Item2, Dimenzije.Item1];
 
@@ -29,11 +28,27 @@ namespace Izlaz_iz_lavirinta
             {
                 for (int j = 0; j < dimenzije.Item1; j++)
                 {
-                    polja[i, j] = new Polje(this,new Point(j,i));
+                    polja[i, j] = new Polje(panel,stranicaPolja,new Point(j,i));
                 }
             }
-            mf.Height = panel.Height+30;
-            mf.Width = panel.Width;
+            Update(FormWidth, FormHeight);
+        }
+
+        public void Update(int FormWidth, int FormHeight)
+        {
+            stranicaPolja = FormWidth / Dimenzije.Item1;
+            if (stranicaPolja * Dimenzije.Item2 > 550)
+                stranicaPolja = FormHeight / Dimenzije.Item2;
+            if (stranicaPolja < minstranica) stranicaPolja = minstranica;
+
+            for (int i = 0; i < Dimenzije.Item2; i++)
+            {
+                for (int j = 0; j < Dimenzije.Item1; j++)
+                {
+                    polja[i, j].Update(stranicaPolja);
+                }
+            }
+
         }
     }
 }

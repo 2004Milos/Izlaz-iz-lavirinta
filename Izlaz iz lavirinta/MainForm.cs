@@ -13,6 +13,7 @@ namespace Izlaz_iz_lavirinta
     public partial class MainForm : Form
     {
         private Tuple<int, int> dimenzije;
+        Lavirint lavirint;
 
         public Tuple<int, int> Dimenzije
         {
@@ -41,7 +42,13 @@ namespace Izlaz_iz_lavirinta
             this.Show();
             inputForm.Close();
             panel1.Location = new Point(0, 30);
-            Lavirint lavirint = new Lavirint(this, panel1, dimenzije);
+            lavirint = new Lavirint(Width,Height, panel1, dimenzije);
+
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            lavirint.Update(Width,Height);
         }
     }
 }

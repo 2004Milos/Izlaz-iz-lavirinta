@@ -14,19 +14,24 @@ namespace Izlaz_iz_lavirinta
         Point Pozicija;
         public PictureBox pb;
 
-        public Polje(Lavirint roditeljskiLavirint, Point pozicija, StanjePolja stanje = StanjePolja.zid)
+        public Polje(Panel panel, int str, Point pozicija, StanjePolja stanje = StanjePolja.zid)
         {
             this.Pozicija = pozicija;
             this.stanje = stanje;
 
             pb = new PictureBox();
-            pb.Width = roditeljskiLavirint.stranicaPolja;
-            pb.Height = roditeljskiLavirint.stranicaPolja;
-            pb.Parent = roditeljskiLavirint.panel;
-            pb.Location = new Point((roditeljskiLavirint.stranicaPolja+2) * pozicija.X, (roditeljskiLavirint.stranicaPolja+2) * pozicija.Y);
+
+            Update(str);
+            pb.Parent = panel;
             pb.BackColor = stanje == StanjePolja.zid ? Boje.boja_Zid : Boje.boja_Slobodno;
         }
 
+        public void Update(int str)
+        {
+            pb.Width = str;
+            pb.Height = str;
+            pb.Location = new Point((str + 2) * Pozicija.X, (str + 2) * Pozicija.Y);
+        }
 
     }
     public enum StanjePolja { zid, slobodno }
