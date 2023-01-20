@@ -38,7 +38,12 @@ namespace Izlaz_iz_lavirinta
         {
             InputForm inputForm = new InputForm();
             this.Hide();
-            inputForm.ShowDialog();
+            DialogResult dr = inputForm.ShowDialog();
+            if (dimenzije == null)
+            {
+                Environment.Exit(0);
+                return;
+            }
             this.Show();
             inputForm.Close();
             panel1.Location = new Point(0, 30);

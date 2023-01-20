@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
+using Windows.ApplicationModel.Appointments;
 
 namespace Izlaz_iz_lavirinta
 {
@@ -20,17 +21,28 @@ namespace Izlaz_iz_lavirinta
             this.stanje = stanje;
 
             pb = new PictureBox();
+            pb.Click += new EventHandler(delegate (Object o, EventArgs a)
+            {
+                this.ChangeType();
+            });
 
             Update(str);
             pb.Parent = panel;
             pb.BackColor = stanje == StanjePolja.zid ? Boje.boja_Zid : Boje.boja_Slobodno;
         }
 
+
         public void Update(int str)
         {
             pb.Width = str;
             pb.Height = str;
             pb.Location = new Point((str + 2) * Pozicija.X, (str + 2) * Pozicija.Y);
+        }
+
+        public void ChangeType()
+        {
+            stanje = (stanje == StanjePolja.zid) ? StanjePolja.slobodno : StanjePolja.zid;
+            pb.BackColor = stanje == StanjePolja.zid ? Boje.boja_Zid : Boje.boja_Slobodno;
         }
 
     }

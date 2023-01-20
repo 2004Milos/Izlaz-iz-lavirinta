@@ -41,7 +41,8 @@
             // 
             // numericUpDownX
             // 
-            this.numericUpDownX.Location = new System.Drawing.Point(34, 22);
+            this.numericUpDownX.Location = new System.Drawing.Point(39, 29);
+            this.numericUpDownX.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.numericUpDownX.Maximum = new decimal(new int[] {
             50,
             0,
@@ -53,7 +54,7 @@
             0,
             0});
             this.numericUpDownX.Name = "numericUpDownX";
-            this.numericUpDownX.Size = new System.Drawing.Size(64, 23);
+            this.numericUpDownX.Size = new System.Drawing.Size(73, 27);
             this.numericUpDownX.TabIndex = 0;
             this.numericUpDownX.Value = new decimal(new int[] {
             2,
@@ -67,16 +68,19 @@
             this.groupBox1.Controls.Add(this.numericUpDownY);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Location = new System.Drawing.Point(14, 16);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(119, 91);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.groupBox1.Size = new System.Drawing.Size(154, 121);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Dimenzije lavirinta";
             // 
             // numericUpDownY
             // 
-            this.numericUpDownY.Location = new System.Drawing.Point(34, 51);
+            this.numericUpDownY.Location = new System.Drawing.Point(39, 68);
+            this.numericUpDownY.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.numericUpDownY.Maximum = new decimal(new int[] {
             50,
             0,
@@ -88,7 +92,7 @@
             0,
             0});
             this.numericUpDownY.Name = "numericUpDownY";
-            this.numericUpDownY.Size = new System.Drawing.Size(64, 23);
+            this.numericUpDownY.Size = new System.Drawing.Size(73, 27);
             this.numericUpDownY.TabIndex = 0;
             this.numericUpDownY.Value = new decimal(new int[] {
             2,
@@ -100,9 +104,9 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(12, 22);
+            this.label1.Location = new System.Drawing.Point(14, 29);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(16, 17);
+            this.label1.Size = new System.Drawing.Size(20, 23);
             this.label1.TabIndex = 1;
             this.label1.Text = "X";
             // 
@@ -110,17 +114,18 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(12, 51);
+            this.label2.Location = new System.Drawing.Point(14, 68);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(15, 17);
+            this.label2.Size = new System.Drawing.Size(19, 23);
             this.label2.TabIndex = 1;
             this.label2.Text = "Y";
             // 
             // SubmitBtn
             // 
-            this.SubmitBtn.Location = new System.Drawing.Point(152, 34);
+            this.SubmitBtn.Location = new System.Drawing.Point(174, 45);
+            this.SubmitBtn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.SubmitBtn.Name = "SubmitBtn";
-            this.SubmitBtn.Size = new System.Drawing.Size(82, 52);
+            this.SubmitBtn.Size = new System.Drawing.Size(94, 69);
             this.SubmitBtn.TabIndex = 2;
             this.SubmitBtn.Text = "OK";
             this.SubmitBtn.UseVisualStyleBackColor = true;
@@ -128,11 +133,12 @@
             // 
             // InputForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(246, 116);
+            this.ClientSize = new System.Drawing.Size(281, 155);
             this.Controls.Add(this.SubmitBtn);
             this.Controls.Add(this.groupBox1);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "InputForm";
             this.Text = "Input";
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownX)).EndInit();
