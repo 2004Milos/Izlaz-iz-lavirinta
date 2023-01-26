@@ -5,22 +5,32 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace Izlaz_iz_lavirinta
 {
-    internal class Lavirint
+    public class Lavirint
     {
-        public Panel panel;
         public Polje[,] polja;
         public int stranicaPolja;
         public Tuple<int,int> Dimenzije; //U poljima
         static int minstranica = 13;
+        public int xstart = 0, ystart = 0;
 
-        public Lavirint(int FormWidth, int FormHeight, Panel panel, Tuple<int,int> dimenzije)
+        public Point Start;
+        public Point Finish;
+
+        public Lavirint(int FormWidth, int FormHeight, Tuple<int,int> dimenzije)
         {
             Dimenzije = dimenzije; 
-            this.panel = panel;
-            stranicaPolja = FormWidth / dimenzije.Item1;
+            stranicaPolja = FormWidth / dimenzije.Item1 - 2;
+            if(stranicaPolja*dimenzije.Item2 > (FormHeight - dimenzije.Item2 * 2))
+                stranicaPolja = FormHeight / dimenzije.Item2 - 2;
+
+            if(dimenzije.Item1 * (stranicaPolja+2) < FormWidth)
+                xstart = (FormWidth - dimenzije.Item1 * (stranicaPolja+2)) / 2;
+            if (dimenzije.Item2 * (stranicaPolja + 2) < FormHeight)
+                ystart = (FormHeight - dimenzije.Item2 * (stranicaPolja+2)) / 2;
 
             polja = new Polje[Dimenzije.Item2, Dimenzije.Item1];
 
@@ -28,27 +38,43 @@ namespace Izlaz_iz_lavirinta
             {
                 for (int j = 0; j < dimenzije.Item1; j++)
                 {
-                    polja[i, j] = new Polje(panel,stranicaPolja,new Point(j,i));
+                    polja[i, j] = new Polje(stranicaPolja,new Point(j,i), xstart, ystart);
                 }
             }
-            Update(FormWidth, FormHeight);
         }
 
-        public void Update(int FormWidth, int FormHeight)
+        public void Crtaj(Graphics g)
         {
-            stranicaPolja = FormWidth / Dimenzije.Item1;
-            if (stranicaPolja * Dimenzije.Item2 > 550)
-                stranicaPolja = FormHeight / Dimenzije.Item2;
-            if (stranicaPolja < minstranica) stranicaPolja = minstranica;
-
             for (int i = 0; i < Dimenzije.Item2; i++)
             {
                 for (int j = 0; j < Dimenzije.Item1; j++)
                 {
-                    polja[i, j].Update(stranicaPolja);
+                    polja[i, j].Crtaj(g);
                 }
             }
+        }
 
+        public Point Polje_by_XY(int x, int y)
+        {
+            int i = (int)((x - xstart) / (stranicaPolja+2));
+            int j = (int)((y - ystart) / (stranicaPolja+2));
+            return new Point(i > (Dimenzije.Item1 - 1) ? (Dimenzije.Item1 - 1) : i, j > (Dimenzije.Item2 - 1) ? (Dimenzije.Item2 - 1) : j);
+        }
+
+        public void SetStartFinish(Graphics g, int x, int y, bool start)
+        {
+            if (start)
+            {
+                polja[Start.Y, Start.X].Click(g, 0);
+                Start = new Point(x, y);
+                polja[y, x].Click(g, 1);
+            }
+            else
+            {
+                polja[Finish.Y, Finish.X].Click(g, 0);
+                Finish = new Point(x, y);
+                polja[y, x].Click(g, 2);
+            }
         }
     }
 }
