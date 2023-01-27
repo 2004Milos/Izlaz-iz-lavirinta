@@ -14,9 +14,9 @@ namespace Izlaz_iz_lavirinta
         StanjePolja stanje;
         Point Pozicija;
         SolidBrush sb;
-        int str;
-
-        int xstart, ystart;
+        
+        public int str;
+        public int xstart, ystart;
 
         public Polje(int str, Point pozicija, int xstart, int ystart, StanjePolja stanje = StanjePolja.zid)
         {
@@ -64,6 +64,13 @@ namespace Izlaz_iz_lavirinta
                 }
             }
             Crtaj(g);
+        }
+
+        public void Resize(int stranica, int xstart, int ystart)
+        {
+            this.str = stranica;
+            this.xstart = xstart;
+            this.ystart = ystart;
         }
 
     }

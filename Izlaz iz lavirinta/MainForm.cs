@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WinRT;
 
 namespace Izlaz_iz_lavirinta
 {
@@ -15,6 +16,7 @@ namespace Izlaz_iz_lavirinta
         private Tuple<int, int> dimenzije;
         public Lavirint lavirint;
         Graphics g;
+        bool crtaj = false;
 
         public Tuple<int, int> Dimenzije
         {
@@ -37,7 +39,6 @@ namespace Izlaz_iz_lavirinta
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            g = CreateGraphics();
             InputForm inputForm = new InputForm();
             this.Hide();
             DialogResult dr = inputForm.ShowDialog();
@@ -48,13 +49,19 @@ namespace Izlaz_iz_lavirinta
             }
             this.Show();
             inputForm.Close();
-            lavirint = new Lavirint(this.ClientSize.Width, ClientSize.Height, dimenzije);
 
+            g = CreateGraphics();
+            lavirint = new Lavirint(this.ClientSize.Width, ClientSize.Height, dimenzije);
+            crtaj = true;
         }
 
         private void MainForm_Paint(object sender, PaintEventArgs e)
         {
-            lavirint.Crtaj(g);
+            if (crtaj)
+            {
+                lavirint.Crtaj(g);
+                crtaj = false;
+            }
         }
 
 
@@ -73,6 +80,25 @@ namespace Izlaz_iz_lavirinta
             else
                 lavirint.SetStartFinish(g, pt.X, pt.Y, false);
 
+        }
+
+
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                //lavirint.AStar();
+            }
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            g.Clear(BackColor);
+            g.Dispose();
+            g = CreateGraphics();
+            lavirint.Resize(ClientRectangle.Width, ClientRectangle.Height);
+            crtaj = true;
+            Refresh();
         }
     }
 }

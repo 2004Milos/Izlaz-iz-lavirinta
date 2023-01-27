@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Text.Json.Serialization;
 
 namespace Izlaz_iz_lavirinta
 {
@@ -14,7 +15,6 @@ namespace Izlaz_iz_lavirinta
         public Polje[,] polja;
         public int stranicaPolja;
         public Tuple<int,int> Dimenzije; //U poljima
-        static int minstranica = 13;
         public int xstart = 0, ystart = 0;
 
         public Point Start;
@@ -34,13 +34,33 @@ namespace Izlaz_iz_lavirinta
 
             polja = new Polje[Dimenzije.Item2, Dimenzije.Item1];
 
-            for (int i = 0; i < dimenzije.Item2; i++)
+            Start = new Point(-1,-1);
+            Finish= new Point(-1,-1);
+
+            for (int i = 0; i < Dimenzije.Item2; i++)
             {
-                for (int j = 0; j < dimenzije.Item1; j++)
+                for (int j = 0; j < Dimenzije.Item1; j++)
                 {
                     polja[i, j] = new Polje(stranicaPolja,new Point(j,i), xstart, ystart);
                 }
             }
+        }
+
+        public void Resize(int FormWidth, int FormHeight)
+        {
+            stranicaPolja = FormWidth / Dimenzije.Item1 - 2;
+            if (stranicaPolja * Dimenzije.Item2 > (FormHeight - Dimenzije.Item2 * 2))
+                stranicaPolja = FormHeight / Dimenzije.Item2 - 2;
+
+            if (Dimenzije.Item1 * (stranicaPolja + 2) < FormWidth)
+                xstart = (FormWidth - Dimenzije.Item1 * (stranicaPolja + 2)) / 2;
+            if (Dimenzije.Item2 * (stranicaPolja + 2) < FormHeight)
+                ystart = (FormHeight - Dimenzije.Item2 * (stranicaPolja + 2)) / 2;
+
+            for (int i = 0; i < Dimenzije.Item2; i++)
+                for (int j = 0; j < Dimenzije.Item1; j++)
+                    polja[i, j].Resize(stranicaPolja,xstart,ystart);
+
         }
 
         public void Crtaj(Graphics g)
@@ -65,13 +85,15 @@ namespace Izlaz_iz_lavirinta
         {
             if (start)
             {
-                polja[Start.Y, Start.X].Click(g, 0);
+                if(Start.X != -1)
+                    polja[Start.Y, Start.X].Click(g, 0);
                 Start = new Point(x, y);
                 polja[y, x].Click(g, 1);
             }
             else
             {
-                polja[Finish.Y, Finish.X].Click(g, 0);
+                if(Finish.X != -1)
+                    polja[Finish.Y, Finish.X].Click(g, 0);
                 Finish = new Point(x, y);
                 polja[y, x].Click(g, 2);
             }
