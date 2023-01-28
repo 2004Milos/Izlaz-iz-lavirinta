@@ -17,6 +17,8 @@ namespace Izlaz_iz_lavirinta
         public Lavirint lavirint;
         Graphics g;
         bool crtaj = false;
+        bool movePanel = false;
+
 
         public Tuple<int, int> Dimenzije
         {
@@ -99,6 +101,26 @@ namespace Izlaz_iz_lavirinta
             lavirint.Resize(ClientRectangle.Width, ClientRectangle.Height);
             crtaj = true;
             Refresh();
+        }
+
+        private void Move_MouseDown(object sender, MouseEventArgs e)
+        {
+            movePanel = true;
+        }
+
+        private void Move_MouseUp(object sender, MouseEventArgs e)
+        {
+            movePanel = false;
+        }
+
+        private void Move_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (movePanel)
+            {
+                ControlPanel.Location = new Point(e.X + ControlPanel.Location.X, e.Y + ControlPanel.Location.Y);
+                crtaj = true;
+                Refresh();
+            }
         }
     }
 }

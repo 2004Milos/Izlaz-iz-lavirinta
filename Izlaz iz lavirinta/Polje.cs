@@ -34,6 +34,7 @@ namespace Izlaz_iz_lavirinta
 
         public void Crtaj(Graphics g)
         {
+            g.Flush();
             g.FillRectangle(sb, xstart+Pozicija.X * (str + 2), ystart+Pozicija.Y * (str + 2), str, str);
             if (stanje == StanjePolja.start)
                 g.DrawImage(Properties.Resources.start, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
