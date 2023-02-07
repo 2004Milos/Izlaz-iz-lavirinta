@@ -6,17 +6,23 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
 using Windows.ApplicationModel.Appointments;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 
 namespace Izlaz_iz_lavirinta
 {
     public class Polje
     {
-        StanjePolja stanje;
-        Point Pozicija;
+        public StanjePolja stanje;
+        public Point Pozicija;
         SolidBrush sb;
         
         public int str;
         public int xstart, ystart;
+
+        public int G, H;
+        public Polje parent;
+
 
         public Polje(int str, Point pozicija, int xstart, int ystart, StanjePolja stanje = StanjePolja.zid)
         {
@@ -30,16 +36,21 @@ namespace Izlaz_iz_lavirinta
             sb = new SolidBrush((stanje == StanjePolja.zid) ? Boje.boja_Zid : Boje.boja_Slobodno);
         }
 
-
-
         public void Crtaj(Graphics g)
         {
-            g.Flush();
             g.FillRectangle(sb, xstart+Pozicija.X * (str + 2), ystart+Pozicija.Y * (str + 2), str, str);
+
             if (stanje == StanjePolja.start)
-                g.DrawImage(Properties.Resources.start, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
-            if (stanje == StanjePolja.cilj)
-                g.DrawImage(Properties.Resources.finish, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
+                using (Image startImage = Properties.Resources.start)
+                {
+                    g.DrawImage(startImage, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
+                    G = 0;
+                }
+            else if (stanje == StanjePolja.cilj)
+                using (Image finishImage = Properties.Resources.finish)
+                {
+                    g.DrawImage(finishImage, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
+                }
         }
 
         public void Click(Graphics g, int StartOrCilj)
@@ -67,6 +78,22 @@ namespace Izlaz_iz_lavirinta
             Crtaj(g);
         }
 
+        public void MarkOtvoren(Graphics g)
+        {
+            sb.Color = Boje.boja_Otvoren;
+            Crtaj(g);
+        }
+
+        public void CrtajPutanju(Graphics g)
+        {
+            sb.Color = Boje.boja_Putanja;
+            this.Crtaj(g);
+            Thread.Sleep(80);
+            Console.Beep();
+            if (stanje != StanjePolja.start)
+                this.parent.CrtajPutanju(g);
+        }
+
         public void Resize(int stranica, int xstart, int ystart)
         {
             this.str = stranica;
@@ -74,11 +101,14 @@ namespace Izlaz_iz_lavirinta
             this.ystart = ystart;
         }
 
+
     }
     public enum StanjePolja { zid, slobodno, start, cilj }
     public static class Boje
     {
         public static readonly Color boja_Slobodno = Color.White;
         public static readonly Color boja_Zid = Color.Gray;
+        public static readonly Color boja_Putanja = Color.Yellow;
+        public static readonly Color boja_Otvoren = Color.LightPink;
     }
 }

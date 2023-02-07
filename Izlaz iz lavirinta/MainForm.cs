@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using WinRT;
+
 
 namespace Izlaz_iz_lavirinta
 {
@@ -15,10 +9,8 @@ namespace Izlaz_iz_lavirinta
     {
         private Tuple<int, int> dimenzije;
         public Lavirint lavirint;
-        Graphics g;
+        public Graphics g;
         bool crtaj = false;
-        bool movePanel = false;
-
 
         public Tuple<int, int> Dimenzije
         {
@@ -41,16 +33,18 @@ namespace Izlaz_iz_lavirinta
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            InputForm inputForm = new InputForm();
-            this.Hide();
-            DialogResult dr = inputForm.ShowDialog();
-            if (dimenzije == null)
+            using (InputForm inputForm = new InputForm())
             {
-                Environment.Exit(0);
-                return;
+                this.Hide();
+                DialogResult dr = inputForm.ShowDialog();
+                if (dimenzije == null)
+                {
+                    Environment.Exit(0);
+                    return;
+                }
+                this.Show();
+                inputForm.Close();
             }
-            this.Show();
-            inputForm.Close();
 
             g = CreateGraphics();
             lavirint = new Lavirint(this.ClientSize.Width, ClientSize.Height, dimenzije);
@@ -89,7 +83,15 @@ namespace Izlaz_iz_lavirinta
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                //lavirint.AStar();
+                if (lavirint.Start.X == -1 || lavirint.Finish.X == -1)
+                {
+                    MessageBox.Show("Obavezno odabrati start i finish u lavirintu! (Dupli levi i desni klik)","Greška",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    return;
+                }
+                using (StartForm sf = new StartForm())
+                {
+                    sf.ShowDialog();
+                }
             }
         }
 
@@ -101,26 +103,6 @@ namespace Izlaz_iz_lavirinta
             lavirint.Resize(ClientRectangle.Width, ClientRectangle.Height);
             crtaj = true;
             Refresh();
-        }
-
-        private void Move_MouseDown(object sender, MouseEventArgs e)
-        {
-            movePanel = true;
-        }
-
-        private void Move_MouseUp(object sender, MouseEventArgs e)
-        {
-            movePanel = false;
-        }
-
-        private void Move_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (movePanel)
-            {
-                ControlPanel.Location = new Point(e.X + ControlPanel.Location.X, e.Y + ControlPanel.Location.Y);
-                crtaj = true;
-                Refresh();
-            }
         }
     }
 }

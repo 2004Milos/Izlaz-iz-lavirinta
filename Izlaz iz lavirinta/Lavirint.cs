@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace Izlaz_iz_lavirinta
 {
@@ -97,6 +98,81 @@ namespace Izlaz_iz_lavirinta
                 Finish = new Point(x, y);
                 polja[y, x].Click(g, 2);
             }
+        }
+
+        IEnumerable<Polje> SusednaPolja(Polje p, bool strane4)
+        {
+            int i = p.Pozicija.Y;
+            int j = p.Pozicija.X;
+            for (int i1 = i - 1; i1 <= i + 1; i1++)
+            {
+                for (int j1 = j - 1; j1 <= j + 1; j1++)
+                {
+                    if (i1 == i && j1 == j) continue;
+                    if (Math.Abs(i1-i)==Math.Abs(j1-j) && strane4) continue;
+                    if (i1 < 0 || j1 < 0 || i1 > Dimenzije.Item2 - 1 || j1 > Dimenzije.Item1 - 1) continue;
+                    if (polja[i1, j1].stanje == StanjePolja.zid) continue;
+                    yield return polja[i1, j1];
+                }
+            }
+        }
+
+        public void AStar(bool strane4, Graphics g)
+        {
+            List<Polje> path = new List<Polje>();
+            List<Polje> openList = new List<Polje>();
+            HashSet<Polje> closedList = new HashSet<Polje>();
+            CalculateH(strane4);
+
+            openList.Add(polja[Start.Y, Start.X]);
+
+            while (openList.Count > 0)
+            {
+                Polje trenutno = MinimumF(openList);
+                if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
+                {
+                    trenutno.CrtajPutanju(g);
+                    break;
+                }
+                openList.Remove(trenutno);
+                closedList.Add(trenutno);
+
+                foreach (Polje sused in SusednaPolja(trenutno,strane4))
+                {
+                    if (closedList.Contains(sused))
+                    {
+                        continue;
+                    }
+                    sused.G = trenutno.G + 1;
+                    sused.parent = trenutno;
+
+                    if (!openList.Contains(sused))
+                    {
+                        openList.Add(sused);
+                        sused.MarkOtvoren(g);
+                        Thread.Sleep(50);
+                    }
+                }
+            }
+        }
+
+        public void CalculateH(bool strane4)
+        {
+            for (int i = 0; i < Dimenzije.Item2; i++)
+                for (int j = 0; j < Dimenzije.Item1; j++)
+                    if(strane4)
+                        polja[i, j].H = Math.Abs(Finish.Y - i) + Math.Abs(Finish.X - j); //Manhetan calc
+                    else
+                        polja[i, j].H = (int)Math.Sqrt(Math.Pow(Finish.Y - i,2) + Math.Pow(Finish.X - j,2)); //Pitagora calc
+        }
+
+        public Polje MinimumF(List<Polje> list)
+        {
+            Polje min = list[0];
+            foreach (Polje p in list)
+                if (p.H + p.G < min.G + min.H)
+                    min = p;
+            return min;
         }
     }
 }
