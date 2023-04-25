@@ -90,16 +90,16 @@ namespace Izlaz_iz_lavirinta
             if (start)
             {
                 if(Start.X != -1)
-                    polja[Start.Y, Start.X].Click(g, 0, sveZazeto_onStart);
+                    polja[Start.Y, Start.X].Clear(g,sveZazeto_onStart);
                 Start = new Point(x, y);
-                polja[y, x].Click(g, 1, !sveZazeto_onStart);
+                polja[y, x].Click(g, 1, false);
             }
             else
             {
                 if(Finish.X != -1)
-                    polja[Finish.Y, Finish.X].Click(g, 0, sveZazeto_onStart);
+                    polja[Finish.Y, Finish.X].Clear(g, sveZazeto_onStart);
                 Finish = new Point(x, y);
-                polja[y, x].Click(g, 2, !sveZazeto_onStart);
+                polja[y, x].Click(g, 2, false);
             }
         }
 
@@ -122,55 +122,71 @@ namespace Izlaz_iz_lavirinta
 
         public void AStar(bool strane4, Graphics g)
         {
-            List<Polje> path = new List<Polje>();
-            List<Polje> openList = new List<Polje>();
+
+            HashSet<Polje> openList = new HashSet<Polje>();
             HashSet<Polje> closedList = new HashSet<Polje>();
+
+            // Calculate the heuristic values (H) for each node
             CalculateH(strane4);
 
+            // Add the start node to the open list
             openList.Add(polja[Start.Y, Start.X]);
 
+            // Loop until there are no more nodes to explore
             while (openList.Count > 0)
             {
-                Polje trenutno = MinimumF(openList);
-                trenutno.MarkOtvoren(g);
-                Thread.Sleep(150);
+                // Get the node with the lowest F value from the open list
+                Polje current = openList.OrderBy(n => n.G + n.H).First();
 
-                if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
+                // Mark the current node as visited
+                current.MarkOtvoren(g);
+                Thread.Sleep(100);
+
+                // Remove the current node from the open list and add it to the closed list
+                openList.Remove(current);
+                closedList.Add(current);
+
+                // Check if the current node is the goal node
+                if (current.Pozicija.X == Finish.X && current.Pozicija.Y == Finish.Y)
                 {
-                    trenutno.CrtajPutanju(g);
-                    break;
+                    current.CrtajPutanju(g);
+                    return;
                 }
-                openList.Remove(trenutno);
-                closedList.Add(trenutno);
 
-                List<Polje> newList = SusednaPolja(trenutno, strane4).OrderBy(X => X.H + X.G).ToList();
-                foreach (Polje sused in newList)
+                // Iterate through the neighboring nodes
+                foreach (Polje neighbor in SusednaPolja(current, strane4))
                 {
-                    if (closedList.Contains(sused))
+                    // Skip nodes that are already in the closed list
+                    if (closedList.Contains(neighbor))
                     {
                         continue;
                     }
 
-                    double tentativeG = trenutno.G + 1;
-                    if (sused.Pozicija.X != trenutno.Pozicija.X && sused.Pozicija.Y != trenutno.Pozicija.Y)
-                        tentativeG += Math.Sqrt(2) - 1;
+                    // Calculate the tentative G value (the cost to get to this node from the start node)
+                    double tentativeG = current.G + (neighbor.Pozicija.X != current.Pozicija.X && neighbor.Pozicija.Y != current.Pozicija.Y ? Math.Sqrt(2) : 1);
 
-
-                    if (!openList.Contains(sused) || tentativeG + trenutno.H < sused.G+sused.H)
+                    // Check if the neighbor is already in the open list
+                    if (openList.Contains(neighbor))
                     {
-                        sused.G = tentativeG;
-                        sused.parent = trenutno;
-
-                        if (!openList.Contains(sused))
+                        // Skip this neighbor if it already has a lower G value
+                        if (tentativeG >= neighbor.G)
                         {
-                            openList.Add(sused);
-                            /*sused.MarkOtvoren(g);
-                            Thread.Sleep(50);*/
+                            continue;
                         }
                     }
+                    else
+                    {
+                        // Add the neighbor to the open list if it's not already there
+                        openList.Add(neighbor);
+                    }
+
+                    // Update the G and parent values for the neighbor
+                    neighbor.G = tentativeG;
+                    neighbor.parent = current;
                 }
             }
         }
+
 
         public void CalculateH(bool strane4)
         {
@@ -187,19 +203,14 @@ namespace Izlaz_iz_lavirinta
                 }
         }
 
-        public Polje MinimumF(List<Polje> list)
+        public Polje MinimumF(HashSet<Polje> nodes)
         {
-            Polje min = list[0];
-            foreach (Polje p in list)
-                if (p.H +p.G < min.H +min.G )
-                    min = p;
-            return min;
+            return  nodes.OrderBy(n => n.G + n.H).First();
         }
 
 
         public void Dijkstra(bool strane4, Graphics g)
         {
-            List<Polje> path = new List<Polje>();
             List<Polje> openList = new List<Polje>();
             HashSet<Polje> closedList = new HashSet<Polje>();
 
@@ -213,14 +224,6 @@ namespace Izlaz_iz_lavirinta
                 // Find the node with the lowest cost in the open list
                 Polje currentNode = openList.OrderBy(n => n.G).First();
 
-                // If the current node is the goal node, we have found the shortest path
-                if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
-                {
-                    // Reconstruct the path by following the parent pointers
-                    currentNode.CrtajPutanju(g);
-
-                    break;
-                }
 
                 openList.Remove(currentNode);
                 closedList.Add(currentNode);
@@ -230,6 +233,7 @@ namespace Izlaz_iz_lavirinta
                 {
                     if (closedList.Contains(neighbor))
                         continue;
+
 
                     double tentativeG = currentNode.G + 1;
                     if (neighbor.Pozicija.X != currentNode.Pozicija.X && neighbor.Pozicija.Y != currentNode.Pozicija.Y)
@@ -247,6 +251,15 @@ namespace Izlaz_iz_lavirinta
                             Thread.Sleep(50);
                         }
                     }
+
+                    // If the current node is the goal node, we have found the shortest path
+                    if (neighbor.Pozicija.X == Finish.X && neighbor.Pozicija.Y == Finish.Y)
+                    {
+                        // Reconstruct the path by following the parent pointers
+                        neighbor.CrtajPutanju(g);
+
+                        return;
+                    }
                 }
             }
         }
@@ -255,6 +268,7 @@ namespace Izlaz_iz_lavirinta
         {
             Start = new Point();
             Finish = new Point();
+            sveZazeto_onStart = svezauzeto;
 
             for (int i = 0; i < Dimenzije.Item2; i++)
                 for (int j = 0; j < Dimenzije.Item1; j++)

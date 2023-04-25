@@ -57,8 +57,8 @@ namespace Izlaz_iz_lavirinta
         {
             if (StartOrCilj == 0)
             {
-                stanje = (stanje == StanjePolja.zid) ? StanjePolja.slobodno : StanjePolja.zid;
-                sb = new SolidBrush((stanje == StanjePolja.zid) ? Boje.boja_Zid : Boje.boja_Slobodno);
+                stanje = stanje == StanjePolja.slobodno ? StanjePolja.zid : StanjePolja.slobodno;
+                sb = new SolidBrush((stanje == StanjePolja.slobodno) ? Boje.boja_Slobodno : Boje.boja_Zid);
             }
             else
             {
@@ -75,6 +75,13 @@ namespace Izlaz_iz_lavirinta
                     stanje = StanjePolja.cilj;
                 }
             }
+            Crtaj(g);
+        }
+
+        public void Clear(Graphics g, bool zid)
+        {
+            stanje = zid ? StanjePolja.zid : StanjePolja.slobodno;
+            sb = new SolidBrush(zid ? Boje.boja_Zid : Boje.boja_Slobodno);
             Crtaj(g);
         }
 
