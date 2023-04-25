@@ -15,12 +15,12 @@ namespace Izlaz_iz_lavirinta
     {
         public StanjePolja stanje;
         public Point Pozicija;
-        SolidBrush sb;
+        public SolidBrush sb;
         
         public int str;
         public int xstart, ystart;
 
-        public int G, H;
+        public double G, H;
         public Polje parent;
 
 
@@ -53,7 +53,7 @@ namespace Izlaz_iz_lavirinta
                 }
         }
 
-        public void Click(Graphics g, int StartOrCilj)
+        public void Click(Graphics g, int StartOrCilj, bool sveZauzeto)
         {
             if (StartOrCilj == 0)
             {
@@ -62,7 +62,7 @@ namespace Izlaz_iz_lavirinta
             }
             else
             {
-                sb = new SolidBrush(Boje.boja_Slobodno);
+                sb = new SolidBrush(sveZauzeto ? Boje.boja_Zid : Boje.boja_Slobodno);
 
                 if (StartOrCilj == 1)
                 {
@@ -92,6 +92,7 @@ namespace Izlaz_iz_lavirinta
             Console.Beep();
             if (stanje != StanjePolja.start)
                 this.parent.CrtajPutanju(g);
+
         }
 
         public void Resize(int stranica, int xstart, int ystart)
@@ -101,6 +102,13 @@ namespace Izlaz_iz_lavirinta
             this.ystart = ystart;
         }
 
+        public void Restart(bool zauzeto, Graphics g)
+        {
+            sb.Color = zauzeto ? Boje.boja_Zid : Boje.boja_Slobodno;
+            stanje = zauzeto ? StanjePolja.zid : StanjePolja.slobodno;
+
+            Crtaj(g);
+        }
 
     }
     public enum StanjePolja { zid, slobodno, start, cilj }

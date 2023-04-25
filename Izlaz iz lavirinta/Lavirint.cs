@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Text.Json.Serialization;
 using System.Threading;
+using Windows.UI.Composition.Interactions;
 
 namespace Izlaz_iz_lavirinta
 {
@@ -20,6 +21,8 @@ namespace Izlaz_iz_lavirinta
 
         public Point Start;
         public Point Finish;
+
+        public bool sveZazeto_onStart = true;
 
         public Lavirint(int FormWidth, int FormHeight, Tuple<int,int> dimenzije)
         {
@@ -87,16 +90,16 @@ namespace Izlaz_iz_lavirinta
             if (start)
             {
                 if(Start.X != -1)
-                    polja[Start.Y, Start.X].Click(g, 0);
+                    polja[Start.Y, Start.X].Click(g, 0, sveZazeto_onStart);
                 Start = new Point(x, y);
-                polja[y, x].Click(g, 1);
+                polja[y, x].Click(g, 1, !sveZazeto_onStart);
             }
             else
             {
                 if(Finish.X != -1)
-                    polja[Finish.Y, Finish.X].Click(g, 0);
+                    polja[Finish.Y, Finish.X].Click(g, 0, sveZazeto_onStart);
                 Finish = new Point(x, y);
-                polja[y, x].Click(g, 2);
+                polja[y, x].Click(g, 2, !sveZazeto_onStart);
             }
         }
 
@@ -129,6 +132,9 @@ namespace Izlaz_iz_lavirinta
             while (openList.Count > 0)
             {
                 Polje trenutno = MinimumF(openList);
+                trenutno.MarkOtvoren(g);
+                Thread.Sleep(150);
+
                 if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
                     trenutno.CrtajPutanju(g);
@@ -137,20 +143,30 @@ namespace Izlaz_iz_lavirinta
                 openList.Remove(trenutno);
                 closedList.Add(trenutno);
 
-                foreach (Polje sused in SusednaPolja(trenutno,strane4))
+                List<Polje> newList = SusednaPolja(trenutno, strane4).OrderBy(X => X.H + X.G).ToList();
+                foreach (Polje sused in newList)
                 {
                     if (closedList.Contains(sused))
                     {
                         continue;
                     }
-                    sused.G = trenutno.G + 1;
-                    sused.parent = trenutno;
 
-                    if (!openList.Contains(sused))
+                    double tentativeG = trenutno.G + 1;
+                    if (sused.Pozicija.X != trenutno.Pozicija.X && sused.Pozicija.Y != trenutno.Pozicija.Y)
+                        tentativeG += Math.Sqrt(2) - 1;
+
+
+                    if (!openList.Contains(sused) || tentativeG + trenutno.H < sused.G+sused.H)
                     {
-                        openList.Add(sused);
-                        sused.MarkOtvoren(g);
-                        Thread.Sleep(50);
+                        sused.G = tentativeG;
+                        sused.parent = trenutno;
+
+                        if (!openList.Contains(sused))
+                        {
+                            openList.Add(sused);
+                            /*sused.MarkOtvoren(g);
+                            Thread.Sleep(50);*/
+                        }
                     }
                 }
             }
@@ -160,19 +176,98 @@ namespace Izlaz_iz_lavirinta
         {
             for (int i = 0; i < Dimenzije.Item2; i++)
                 for (int j = 0; j < Dimenzije.Item1; j++)
-                    if(strane4)
-                        polja[i, j].H = Math.Abs(Finish.Y - i) + Math.Abs(Finish.X - j); //Manhetan calc
+                {
+                    double dY = Math.Abs(Finish.Y - i);
+                    double dX = Math.Abs(Finish.X - j);
+
+                    if (strane4)
+                        polja[i, j].H = dY + dX; //Manhetan calc
                     else
-                        polja[i, j].H = (int)Math.Sqrt(Math.Pow(Finish.Y - i,2) + Math.Pow(Finish.X - j,2)); //Pitagora calc
+                        polja[i, j].H = (Math.Sqrt(2) * Math.Min(dY, dX) + Math.Abs(dY - dX)); //Pitagora calc
+                }
         }
 
         public Polje MinimumF(List<Polje> list)
         {
             Polje min = list[0];
             foreach (Polje p in list)
-                if (p.H + p.G < min.G + min.H)
+                if (p.H +p.G < min.H +min.G )
                     min = p;
             return min;
+        }
+
+
+        public void Dijkstra(bool strane4, Graphics g)
+        {
+            List<Polje> path = new List<Polje>();
+            List<Polje> openList = new List<Polje>();
+            HashSet<Polje> closedList = new HashSet<Polje>();
+
+            // Initialize start node
+            Polje startNode = polja[Start.Y, Start.X];
+            startNode.G = 0;
+            openList.Add(startNode);
+
+            while (openList.Count > 0)
+            {
+                // Find the node with the lowest cost in the open list
+                Polje currentNode = openList.OrderBy(n => n.G).First();
+
+                // If the current node is the goal node, we have found the shortest path
+                if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
+                {
+                    // Reconstruct the path by following the parent pointers
+                    currentNode.CrtajPutanju(g);
+
+                    break;
+                }
+
+                openList.Remove(currentNode);
+                closedList.Add(currentNode);
+
+                // Iterate over the neighbor nodes
+                foreach (Polje neighbor in SusednaPolja(currentNode, strane4))
+                {
+                    if (closedList.Contains(neighbor))
+                        continue;
+
+                    double tentativeG = currentNode.G + 1;
+                    if (neighbor.Pozicija.X != currentNode.Pozicija.X && neighbor.Pozicija.Y != currentNode.Pozicija.Y)
+                        tentativeG += Math.Sqrt(2) - 1; 
+                                                                       
+                    if (!openList.Contains(neighbor) || tentativeG < neighbor.G)
+                    {
+                        neighbor.G = tentativeG;
+                        neighbor.parent = currentNode;
+
+                        if (!openList.Contains(neighbor))
+                        {
+                            openList.Add(neighbor);
+                            neighbor.MarkOtvoren(g);
+                            Thread.Sleep(50);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void Clear(bool svezauzeto, Graphics g)
+        {
+            Start = new Point();
+            Finish = new Point();
+
+            for (int i = 0; i < Dimenzije.Item2; i++)
+                for (int j = 0; j < Dimenzije.Item1; j++)
+                    polja[i, j].Restart(svezauzeto,g);
+        }
+
+        public void RemovePaths(Graphics g) {
+            for (int i = 0; i < Dimenzije.Item2; i++)
+                for (int j = 0; j < Dimenzije.Item1; j++)
+                {
+                    polja[i,j].sb.Color = (polja[i,j].stanje == StanjePolja.zid) ? Boje.boja_Zid : Boje.boja_Slobodno;
+                    polja[i, j].Crtaj(g);
+                }
         }
     }
 }

@@ -60,11 +60,39 @@ namespace Izlaz_iz_lavirinta
             }
         }
 
+        bool down = false;
+        Point prethodniPt = new Point(-5, -5);
+
+        private void MainForm_MouseDown(object sender, MouseEventArgs e)
+        {
+            down = true;
+        }
+
+        private void MainForm_MouseUp(object sender, MouseEventArgs e)
+        {
+            down = false;
+
+        }
+
+        private void MainForm_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (down)
+            {
+                Point pt = lavirint.Polje_by_XY(e.X, e.Y);
+                if (prethodniPt.X != pt.X || prethodniPt.Y != pt.Y)
+                {
+                    lavirint.polja[pt.Y, pt.X].Click(g, 0, lavirint.sveZazeto_onStart);
+                    prethodniPt = pt;
+                }
+            }
+
+        }
 
         private void MainForm_MouseClick(object sender, MouseEventArgs e)
         {
+            down = false;
             Point pt = lavirint.Polje_by_XY(e.X, e.Y);
-            lavirint.polja[pt.Y,pt.X].Click(g, 0);
+            lavirint.polja[pt.Y,pt.X].Click(g, 0, lavirint.sveZazeto_onStart);
         }
 
 
