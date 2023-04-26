@@ -61,6 +61,7 @@ namespace Izlaz_iz_lavirinta
         }
 
         bool down = false;
+        bool moving = false;
         Point prethodniPt = new Point(-5, -5);
 
         private void MainForm_MouseDown(object sender, MouseEventArgs e)
@@ -71,6 +72,7 @@ namespace Izlaz_iz_lavirinta
         private void MainForm_MouseUp(object sender, MouseEventArgs e)
         {
             down = false;
+            moving = false;
 
         }
 
@@ -78,6 +80,7 @@ namespace Izlaz_iz_lavirinta
         {
             if (down)
             {
+                moving = true;
                 Point pt = lavirint.Polje_by_XY(e.X, e.Y);
                 if (prethodniPt.X != pt.X || prethodniPt.Y != pt.Y)
                 {
@@ -90,7 +93,8 @@ namespace Izlaz_iz_lavirinta
 
         private void MainForm_MouseClick(object sender, MouseEventArgs e)
         {
-            down = false;
+            if (moving) return;
+
             Point pt = lavirint.Polje_by_XY(e.X, e.Y);
             lavirint.polja[pt.Y,pt.X].Click(g, 0, lavirint.sveZazeto_onStart);
         }
@@ -111,12 +115,7 @@ namespace Izlaz_iz_lavirinta
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                if (lavirint.Start.X == -1 || lavirint.Finish.X == -1)
-                {
-                    MessageBox.Show("Obavezno odabrati start i finish u lavirintu! (Dupli levi i desni klik)","Greška",MessageBoxButtons.OK,MessageBoxIcon.Warning);
-                    return;
-                }
-                using (StartForm sf = new StartForm())
+                using (StartForm sf = new StartForm(lavirint.Start.X != -1 && lavirint.Finish.X != -1))
                 {
                     sf.ShowDialog();
                 }
@@ -124,6 +123,16 @@ namespace Izlaz_iz_lavirinta
         }
 
         private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            g.Clear(BackColor);
+            g.Dispose();
+            g = CreateGraphics();
+            lavirint.Resize(ClientRectangle.Width, ClientRectangle.Height);
+            crtaj = true;
+            Refresh();
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
         {
             g.Clear(BackColor);
             g.Dispose();

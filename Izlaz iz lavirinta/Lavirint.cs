@@ -136,7 +136,7 @@ namespace Izlaz_iz_lavirinta
             while (openList.Count > 0)
             {
                 // Get the node with the lowest F value from the open list
-                Polje current = openList.OrderBy(n => n.G + n.H).First();
+                Polje current = MinimumF(openList);
 
                 // Mark the current node as visited
                 current.MarkOtvoren(g);
@@ -211,7 +211,7 @@ namespace Izlaz_iz_lavirinta
 
         public void Dijkstra(bool strane4, Graphics g)
         {
-            List<Polje> openList = new List<Polje>();
+            HashSet<Polje> openList = new HashSet<Polje>();
             HashSet<Polje> closedList = new HashSet<Polje>();
 
             // Initialize start node
@@ -266,8 +266,8 @@ namespace Izlaz_iz_lavirinta
 
         public void Clear(bool svezauzeto, Graphics g)
         {
-            Start = new Point();
-            Finish = new Point();
+            Start = new Point(-1,-1);
+            Finish = new Point(-1,-1);
             sveZazeto_onStart = svezauzeto;
 
             for (int i = 0; i < Dimenzije.Item2; i++)

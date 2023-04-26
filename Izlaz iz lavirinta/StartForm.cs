@@ -6,10 +6,11 @@ namespace Izlaz_iz_lavirinta
     public partial class StartForm : Form
     {
         MainForm mf;
-        public StartForm()
+        public StartForm(bool smeStart)
         {
             mf = ((MainForm)Application.OpenForms[0]);
             InitializeComponent();
+            if (!smeStart) Start.Enabled = false;
         }
 
         private void Start_Click(object sender, EventArgs e)
