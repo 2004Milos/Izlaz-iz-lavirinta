@@ -24,11 +24,20 @@ namespace Izlaz_iz_lavirinta
                 mf.lavirint.AStar(pravca4.Checked, mf.g);
 
             }
-            else
+            else if (Dijkstra_radio.Checked)
             {
                 mf.lavirint.Dijkstra(pravca4.Checked, mf.g);
 
             }
+            else if (bfs_radio.Checked)
+            {
+                mf.lavirint.BFS(pravca4.Checked, mf.g);
+            }
+            else
+            {
+                mf.lavirint.DFS(pravca4.Checked, mf.g);
+            }
+
 
             this.Close();
         }

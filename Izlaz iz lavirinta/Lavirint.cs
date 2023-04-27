@@ -264,6 +264,81 @@ namespace Izlaz_iz_lavirinta
             }
         }
 
+        public void BFS(bool strane4, Graphics g)
+        {
+            Queue<Polje> queue = new Queue<Polje>();
+            HashSet<Polje> visited = new HashSet<Polje>();
+
+            Polje startNode = polja[Start.Y, Start.X];
+            queue.Enqueue(startNode);
+
+            while (queue.Count > 0)
+            {
+                Polje currentNode = queue.Dequeue();
+
+                // Check if the current node is the goal node
+                if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
+                {
+                    currentNode.CrtajPutanju(g);
+                    return;
+                }
+
+                // Mark the current node as visited
+                visited.Add(currentNode);
+                currentNode.MarkOtvoren(g);
+                Thread.Sleep(50);
+
+                // Iterate through the neighboring nodes
+                foreach (Polje neighbor in SusednaPolja(currentNode, strane4))
+                {
+                    if (visited.Contains(neighbor) || queue.Contains(neighbor))
+                    {
+                        continue;
+                    }
+
+                    // Set the parent of the neighbor to the current node
+                    neighbor.parent = currentNode;
+
+                    // Add the neighbor to the queue
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+
+
+
+        public void DFS(bool strane4, Graphics g)
+        {
+            Stack<Polje> stack = new Stack<Polje>();
+            HashSet<Polje> visited = new HashSet<Polje>();
+            Polje startNode = polja[Start.Y, Start.X];
+            stack.Push(startNode);
+
+            while (stack.Count > 0)
+            {
+                Polje currentNode = stack.Pop();
+                visited.Add(currentNode);
+                currentNode.MarkOtvoren(g);
+                Thread.Sleep(100);
+
+                if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
+                {
+                    currentNode.CrtajPutanju(g);
+                    return;
+                }
+
+                foreach (Polje neighbor in SusednaPolja(currentNode, strane4))
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        neighbor.parent = currentNode;
+                        stack.Push(neighbor);
+                    }
+                }
+            }
+        }
+
+
         public void Clear(bool svezauzeto, Graphics g)
         {
             Start = new Point(-1,-1);

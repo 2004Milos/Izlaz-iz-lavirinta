@@ -122,8 +122,8 @@ namespace Izlaz_iz_lavirinta
     public static class Boje
     {
         public static readonly Color boja_Slobodno = Color.White;
-        public static readonly Color boja_Zid = Color.DarkGray;
+        public static readonly Color boja_Zid = Color.FromArgb(81, 103, 111);
         public static readonly Color boja_Putanja = Color.FromArgb(255, 75, 75);
-        public static readonly Color boja_Otvoren = Color.FromArgb(255, 255, 102);
+        public static readonly Color boja_Otvoren = Color.FromArgb(255, 241, 106);
     }
 }
