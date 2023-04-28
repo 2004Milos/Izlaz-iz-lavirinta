@@ -91,14 +91,14 @@ namespace Izlaz_iz_lavirinta
             Crtaj(g);
         }
 
-        public void CrtajPutanju(Graphics g)
+        public void CrtajPutanju(Graphics g, int delta_t)
         {
             sb.Color = Boje.boja_Putanja;
             this.Crtaj(g);
-            Thread.Sleep(80);
+            Thread.Sleep(delta_t);
             Console.Beep();
             if (stanje != StanjePolja.start)
-                this.parent.CrtajPutanju(g);
+                this.parent.CrtajPutanju(g, delta_t);
 
         }
 

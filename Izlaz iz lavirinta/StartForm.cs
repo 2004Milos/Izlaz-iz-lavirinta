@@ -10,7 +10,7 @@ namespace Izlaz_iz_lavirinta
         {
             mf = ((MainForm)Application.OpenForms[0]);
             InitializeComponent();
-            if (!smeStart) Start.Enabled = false;
+            if (!smeStart) pretraga_GB.Enabled = false;
         }
 
         private void Start_Click(object sender, EventArgs e)
@@ -18,6 +18,7 @@ namespace Izlaz_iz_lavirinta
             this.Hide();
             mf.BringToFront();
             mf.lavirint.RemovePaths(mf.g);
+
             if (Astar_radio.Checked)
             {
 
@@ -33,9 +34,13 @@ namespace Izlaz_iz_lavirinta
             {
                 mf.lavirint.BFS(pravca4.Checked, mf.g);
             }
-            else
+            else if(dfs_radio.Checked)
             {
                 mf.lavirint.DFS(pravca4.Checked, mf.g);
+            }
+            else if (BestFS_radio.Checked)
+            {
+                mf.lavirint.BestFS(pravca4.Checked, mf.g);
             }
 
 

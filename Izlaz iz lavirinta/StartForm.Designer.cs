@@ -39,11 +39,12 @@
             this.pravca4 = new System.Windows.Forms.RadioButton();
             this.clear_btn = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.pretraga_GB = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.BestFS_radio = new System.Windows.Forms.RadioButton();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.pretraga_GB.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,9 +52,10 @@
             // 
             this.Start.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.Start.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.Start.Location = new System.Drawing.Point(6, 106);
+            this.Start.Location = new System.Drawing.Point(8, 164);
+            this.Start.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Start.Name = "Start";
-            this.Start.Size = new System.Drawing.Size(308, 60);
+            this.Start.Size = new System.Drawing.Size(352, 80);
             this.Start.TabIndex = 4;
             this.Start.Text = "Start";
             this.Start.UseVisualStyleBackColor = false;
@@ -61,13 +63,16 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.BestFS_radio);
             this.groupBox2.Controls.Add(this.dfs_radio);
             this.groupBox2.Controls.Add(this.bfs_radio);
             this.groupBox2.Controls.Add(this.Dijkstra_radio);
             this.groupBox2.Controls.Add(this.Astar_radio);
-            this.groupBox2.Location = new System.Drawing.Point(163, 22);
+            this.groupBox2.Location = new System.Drawing.Point(186, 29);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(151, 78);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.groupBox2.Size = new System.Drawing.Size(173, 127);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Algoritam";
@@ -75,19 +80,23 @@
             // dfs_radio
             // 
             this.dfs_radio.AutoSize = true;
-            this.dfs_radio.Location = new System.Drawing.Point(75, 47);
+            this.dfs_radio.Checked = true;
+            this.dfs_radio.Location = new System.Drawing.Point(6, 28);
+            this.dfs_radio.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dfs_radio.Name = "dfs_radio";
-            this.dfs_radio.Size = new System.Drawing.Size(45, 19);
+            this.dfs_radio.Size = new System.Drawing.Size(56, 24);
             this.dfs_radio.TabIndex = 3;
+            this.dfs_radio.TabStop = true;
             this.dfs_radio.Text = "DFS";
             this.dfs_radio.UseVisualStyleBackColor = true;
             // 
             // bfs_radio
             // 
             this.bfs_radio.AutoSize = true;
-            this.bfs_radio.Location = new System.Drawing.Point(75, 22);
+            this.bfs_radio.Location = new System.Drawing.Point(6, 62);
+            this.bfs_radio.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.bfs_radio.Name = "bfs_radio";
-            this.bfs_radio.Size = new System.Drawing.Size(44, 19);
+            this.bfs_radio.Size = new System.Drawing.Size(54, 24);
             this.bfs_radio.TabIndex = 2;
             this.bfs_radio.Text = "BFS";
             this.bfs_radio.UseVisualStyleBackColor = true;
@@ -95,9 +104,10 @@
             // Dijkstra_radio
             // 
             this.Dijkstra_radio.AutoSize = true;
-            this.Dijkstra_radio.Location = new System.Drawing.Point(6, 47);
+            this.Dijkstra_radio.Location = new System.Drawing.Point(87, 29);
+            this.Dijkstra_radio.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Dijkstra_radio.Name = "Dijkstra_radio";
-            this.Dijkstra_radio.Size = new System.Drawing.Size(64, 19);
+            this.Dijkstra_radio.Size = new System.Drawing.Size(80, 24);
             this.Dijkstra_radio.TabIndex = 1;
             this.Dijkstra_radio.Text = "Dijkstra";
             this.Dijkstra_radio.UseVisualStyleBackColor = true;
@@ -105,12 +115,11 @@
             // Astar_radio
             // 
             this.Astar_radio.AutoSize = true;
-            this.Astar_radio.Checked = true;
-            this.Astar_radio.Location = new System.Drawing.Point(6, 22);
+            this.Astar_radio.Location = new System.Drawing.Point(87, 93);
+            this.Astar_radio.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Astar_radio.Name = "Astar_radio";
-            this.Astar_radio.Size = new System.Drawing.Size(41, 19);
+            this.Astar_radio.Size = new System.Drawing.Size(50, 24);
             this.Astar_radio.TabIndex = 0;
-            this.Astar_radio.TabStop = true;
             this.Astar_radio.Text = "A *";
             this.Astar_radio.UseVisualStyleBackColor = true;
             // 
@@ -118,9 +127,11 @@
             // 
             this.groupBox1.Controls.Add(this.pravca8);
             this.groupBox1.Controls.Add(this.pravca4);
-            this.groupBox1.Location = new System.Drawing.Point(7, 22);
+            this.groupBox1.Location = new System.Drawing.Point(8, 29);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(151, 78);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.groupBox1.Size = new System.Drawing.Size(173, 127);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Kretanje";
@@ -128,9 +139,10 @@
             // pravca8
             // 
             this.pravca8.AutoSize = true;
-            this.pravca8.Location = new System.Drawing.Point(6, 47);
+            this.pravca8.Location = new System.Drawing.Point(7, 63);
+            this.pravca8.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pravca8.Name = "pravca8";
-            this.pravca8.Size = new System.Drawing.Size(80, 19);
+            this.pravca8.Size = new System.Drawing.Size(100, 24);
             this.pravca8.TabIndex = 1;
             this.pravca8.Text = "U 8 pravca";
             this.pravca8.UseVisualStyleBackColor = true;
@@ -139,9 +151,10 @@
             // 
             this.pravca4.AutoSize = true;
             this.pravca4.Checked = true;
-            this.pravca4.Location = new System.Drawing.Point(6, 22);
+            this.pravca4.Location = new System.Drawing.Point(7, 29);
+            this.pravca4.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pravca4.Name = "pravca4";
-            this.pravca4.Size = new System.Drawing.Size(80, 19);
+            this.pravca4.Size = new System.Drawing.Size(100, 24);
             this.pravca4.TabIndex = 0;
             this.pravca4.TabStop = true;
             this.pravca4.Text = "U 4 pravca";
@@ -151,9 +164,10 @@
             // 
             this.clear_btn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.clear_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.clear_btn.Location = new System.Drawing.Point(163, 22);
+            this.clear_btn.Location = new System.Drawing.Point(202, 29);
+            this.clear_btn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.clear_btn.Name = "clear_btn";
-            this.clear_btn.Size = new System.Drawing.Size(151, 46);
+            this.clear_btn.Size = new System.Drawing.Size(157, 61);
             this.clear_btn.TabIndex = 7;
             this.clear_btn.Text = "Clear";
             this.clear_btn.UseVisualStyleBackColor = false;
@@ -162,51 +176,66 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(7, 37);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.checkBox1.Location = new System.Drawing.Point(8, 49);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(150, 19);
+            this.checkBox1.Size = new System.Drawing.Size(188, 24);
             this.checkBox1.TabIndex = 8;
             this.checkBox1.Text = "Prepreke na svako polje";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // groupBox3
+            // pretraga_GB
             // 
-            this.groupBox3.Controls.Add(this.groupBox1);
-            this.groupBox3.Controls.Add(this.groupBox2);
-            this.groupBox3.Controls.Add(this.Start);
-            this.groupBox3.Location = new System.Drawing.Point(12, 12);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(328, 177);
-            this.groupBox3.TabIndex = 9;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Pretraga";
+            this.pretraga_GB.Controls.Add(this.groupBox1);
+            this.pretraga_GB.Controls.Add(this.groupBox2);
+            this.pretraga_GB.Controls.Add(this.Start);
+            this.pretraga_GB.Location = new System.Drawing.Point(14, 13);
+            this.pretraga_GB.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pretraga_GB.Name = "pretraga_GB";
+            this.pretraga_GB.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pretraga_GB.Size = new System.Drawing.Size(373, 254);
+            this.pretraga_GB.TabIndex = 9;
+            this.pretraga_GB.TabStop = false;
+            this.pretraga_GB.Text = "Pretraga";
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.checkBox1);
             this.groupBox4.Controls.Add(this.clear_btn);
-            this.groupBox4.Location = new System.Drawing.Point(12, 195);
+            this.groupBox4.Location = new System.Drawing.Point(14, 275);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(328, 79);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.groupBox4.Size = new System.Drawing.Size(375, 105);
             this.groupBox4.TabIndex = 10;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Brisanje";
             // 
+            // BestFS_radio
+            // 
+            this.BestFS_radio.AutoSize = true;
+            this.BestFS_radio.Location = new System.Drawing.Point(87, 61);
+            this.BestFS_radio.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.BestFS_radio.Name = "BestFS_radio";
+            this.BestFS_radio.Size = new System.Drawing.Size(77, 24);
+            this.BestFS_radio.TabIndex = 4;
+            this.BestFS_radio.Text = "Best FS";
+            this.BestFS_radio.UseVisualStyleBackColor = true;
+            // 
             // StartForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(349, 284);
+            this.ClientSize = new System.Drawing.Size(399, 389);
             this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.pretraga_GB);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "StartForm";
             this.Text = "Start";
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
+            this.pretraga_GB.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
@@ -226,7 +255,8 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.RadioButton dfs_radio;
         private System.Windows.Forms.RadioButton bfs_radio;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox pretraga_GB;
         private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.RadioButton BestFS_radio;
     }
 }

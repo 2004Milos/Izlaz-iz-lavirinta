@@ -23,10 +23,12 @@ namespace Izlaz_iz_lavirinta
         public Point Finish;
 
         public bool sveZazeto_onStart = true;
+        int simulator_delta_t = 50;
 
         public Lavirint(int FormWidth, int FormHeight, Tuple<int,int> dimenzije)
         {
             Dimenzije = dimenzije; 
+
             stranicaPolja = FormWidth / dimenzije.Item1 - 2;
             if(stranicaPolja*dimenzije.Item2 > (FormHeight - dimenzije.Item2 * 2))
                 stranicaPolja = FormHeight / dimenzije.Item2 - 2;
@@ -122,7 +124,7 @@ namespace Izlaz_iz_lavirinta
 
         public void AStar(bool strane4, Graphics g)
         {
-
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
             HashSet<Polje> openList = new HashSet<Polje>();
             HashSet<Polje> closedList = new HashSet<Polje>();
 
@@ -136,25 +138,25 @@ namespace Izlaz_iz_lavirinta
             while (openList.Count > 0)
             {
                 // Get the node with the lowest F value from the open list
-                Polje current = MinimumF(openList);
+                Polje trenutno = MinimumF(openList);
 
-                // Mark the current node as visited
-                current.MarkOtvoren(g);
-                Thread.Sleep(100);
+                // Mark the trenutno node as visited
+                trenutno.MarkOtvoren(g);
+                Thread.Sleep(simulator_delta_t);
 
-                // Remove the current node from the open list and add it to the closed list
-                openList.Remove(current);
-                closedList.Add(current);
+                // Remove the trenutno node from the open list and add it to the closed list
+                openList.Remove(trenutno);
+                closedList.Add(trenutno);
 
-                // Check if the current node is the goal node
-                if (current.Pozicija.X == Finish.X && current.Pozicija.Y == Finish.Y)
+                // Check if the trenutno node is the goal node
+                if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
-                    current.CrtajPutanju(g);
+                    trenutno.CrtajPutanju(g, 2*simulator_delta_t);
                     return;
                 }
 
                 // Iterate through the neighboring nodes
-                foreach (Polje neighbor in SusednaPolja(current, strane4))
+                foreach (Polje neighbor in SusednaPolja(trenutno, strane4))
                 {
                     // Skip nodes that are already in the closed list
                     if (closedList.Contains(neighbor))
@@ -163,7 +165,7 @@ namespace Izlaz_iz_lavirinta
                     }
 
                     // Calculate the tentative G value (the cost to get to this node from the start node)
-                    double tentativeG = current.G + (neighbor.Pozicija.X != current.Pozicija.X && neighbor.Pozicija.Y != current.Pozicija.Y ? Math.Sqrt(2) : 1);
+                    double tentativeG = trenutno.G + (neighbor.Pozicija.X != trenutno.Pozicija.X && neighbor.Pozicija.Y != trenutno.Pozicija.Y ? Math.Sqrt(2) : 1);
 
                     // Check if the neighbor is already in the open list
                     if (openList.Contains(neighbor))
@@ -182,7 +184,7 @@ namespace Izlaz_iz_lavirinta
 
                     // Update the G and parent values for the neighbor
                     neighbor.G = tentativeG;
-                    neighbor.parent = current;
+                    neighbor.parent = trenutno;
                 }
             }
         }
@@ -199,18 +201,64 @@ namespace Izlaz_iz_lavirinta
                     if (strane4)
                         polja[i, j].H = dY + dX; //Manhetan calc
                     else
-                        polja[i, j].H = (Math.Sqrt(2) * Math.Min(dY, dX) + Math.Abs(dY - dX)); //Pitagora calc
+                        polja[i, j].H = (Math.Sqrt(2) * Math.Min(dY, dX) + Math.Abs(dY - dX)); //Octile calc
                 }
         }
 
         public Polje MinimumF(HashSet<Polje> nodes)
         {
-            return  nodes.OrderBy(n => n.G + n.H).First();
+            return nodes.OrderBy(n => n.G + n.H).ThenBy(n => n.H).First();
+        }
+
+        public Polje MinimumH(HashSet<Polje> nodes)
+        {
+            return nodes.OrderBy(n => n.H).First();
+        }
+
+
+        public void BestFS(bool strane4, Graphics g)
+        {
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X) + 1) * (Math.Abs(Start.Y - Finish.Y) + 1))); //25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
+            HashSet<Polje> openList = new HashSet<Polje>();
+            HashSet<Polje> closedList = new HashSet<Polje>();
+            CalculateH(strane4);
+
+            openList.Add(polja[Start.Y, Start.X]);
+
+            while (openList.Count > 0)
+            {
+                Polje trenutno = MinimumH(openList);
+                openList.Remove(trenutno);
+                closedList.Add(trenutno);
+                Thread.Sleep(simulator_delta_t);
+                trenutno.MarkOtvoren(g);
+
+                foreach (Polje sused in SusednaPolja(trenutno, strane4))
+                {
+                    if (closedList.Contains(sused))
+                    {
+                        continue;
+                    }
+
+                    if (!openList.Contains(sused))
+                    {
+                        openList.Add(sused);
+                    }
+                    sused.parent = trenutno;
+
+                    if (sused.Pozicija.X == Finish.X && sused.Pozicija.Y == Finish.Y)
+                    {
+                        sused.CrtajPutanju(g, 2 * simulator_delta_t);
+                        return;
+                    }
+                }
+            }
         }
 
 
         public void Dijkstra(bool strane4, Graphics g)
         {
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
             HashSet<Polje> openList = new HashSet<Polje>();
             HashSet<Polje> closedList = new HashSet<Polje>();
 
@@ -222,41 +270,41 @@ namespace Izlaz_iz_lavirinta
             while (openList.Count > 0)
             {
                 // Find the node with the lowest cost in the open list
-                Polje currentNode = openList.OrderBy(n => n.G).First();
+                Polje trenutno = openList.OrderBy(n => n.G).First();
 
 
-                openList.Remove(currentNode);
-                closedList.Add(currentNode);
+                openList.Remove(trenutno);
+                closedList.Add(trenutno);
 
                 // Iterate over the neighbor nodes
-                foreach (Polje neighbor in SusednaPolja(currentNode, strane4))
+                foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (closedList.Contains(neighbor))
+                    if (closedList.Contains(sused))
                         continue;
 
 
-                    double tentativeG = currentNode.G + 1;
-                    if (neighbor.Pozicija.X != currentNode.Pozicija.X && neighbor.Pozicija.Y != currentNode.Pozicija.Y)
+                    double tentativeG = trenutno.G + 1;
+                    if (sused.Pozicija.X != trenutno.Pozicija.X && sused.Pozicija.Y != trenutno.Pozicija.Y)
                         tentativeG += Math.Sqrt(2) - 1; 
                                                                        
-                    if (!openList.Contains(neighbor) || tentativeG < neighbor.G)
+                    if (!openList.Contains(sused) || tentativeG < sused.G)
                     {
-                        neighbor.G = tentativeG;
-                        neighbor.parent = currentNode;
+                        sused.G = tentativeG;
+                        sused.parent = trenutno;
 
-                        if (!openList.Contains(neighbor))
+                        if (!openList.Contains(sused))
                         {
-                            openList.Add(neighbor);
-                            neighbor.MarkOtvoren(g);
-                            Thread.Sleep(50);
+                            openList.Add(sused);
+                            sused.MarkOtvoren(g);
+                            Thread.Sleep(simulator_delta_t);
                         }
                     }
 
                     // If the current node is the goal node, we have found the shortest path
-                    if (neighbor.Pozicija.X == Finish.X && neighbor.Pozicija.Y == Finish.Y)
+                    if (sused.Pozicija.X == Finish.X && sused.Pozicija.Y == Finish.Y)
                     {
                         // Reconstruct the path by following the parent pointers
-                        neighbor.CrtajPutanju(g);
+                        sused.CrtajPutanju(g, 2*simulator_delta_t);
 
                         return;
                     }
@@ -266,41 +314,42 @@ namespace Izlaz_iz_lavirinta
 
         public void BFS(bool strane4, Graphics g)
         {
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
             Queue<Polje> queue = new Queue<Polje>();
             HashSet<Polje> visited = new HashSet<Polje>();
 
-            Polje startNode = polja[Start.Y, Start.X];
-            queue.Enqueue(startNode);
+            Polje startPolje = polja[Start.Y, Start.X];
+            queue.Enqueue(startPolje);
 
             while (queue.Count > 0)
             {
-                Polje currentNode = queue.Dequeue();
+                Polje trenutno = queue.Dequeue();
 
                 // Check if the current node is the goal node
-                if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
+                if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
-                    currentNode.CrtajPutanju(g);
+                    trenutno.CrtajPutanju(g, 2*simulator_delta_t);
                     return;
                 }
 
                 // Mark the current node as visited
-                visited.Add(currentNode);
-                currentNode.MarkOtvoren(g);
-                Thread.Sleep(50);
+                visited.Add(trenutno);
+                trenutno.MarkOtvoren(g);
+                Thread.Sleep(simulator_delta_t);
 
                 // Iterate through the neighboring nodes
-                foreach (Polje neighbor in SusednaPolja(currentNode, strane4))
+                foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (visited.Contains(neighbor) || queue.Contains(neighbor))
+                    if (visited.Contains(sused) || queue.Contains(sused))
                     {
                         continue;
                     }
 
                     // Set the parent of the neighbor to the current node
-                    neighbor.parent = currentNode;
+                    sused.parent = trenutno;
 
                     // Add the neighbor to the queue
-                    queue.Enqueue(neighbor);
+                    queue.Enqueue(sused);
                 }
             }
         }
@@ -309,6 +358,7 @@ namespace Izlaz_iz_lavirinta
 
         public void DFS(bool strane4, Graphics g)
         {
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
             Stack<Polje> stack = new Stack<Polje>();
             HashSet<Polje> visited = new HashSet<Polje>();
             Polje startNode = polja[Start.Y, Start.X];
@@ -319,11 +369,11 @@ namespace Izlaz_iz_lavirinta
                 Polje currentNode = stack.Pop();
                 visited.Add(currentNode);
                 currentNode.MarkOtvoren(g);
-                Thread.Sleep(100);
+                Thread.Sleep(simulator_delta_t);
 
                 if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
                 {
-                    currentNode.CrtajPutanju(g);
+                    currentNode.CrtajPutanju(g, 2*simulator_delta_t);
                     return;
                 }
 

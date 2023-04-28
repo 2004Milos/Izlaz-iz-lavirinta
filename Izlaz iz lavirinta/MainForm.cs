@@ -96,7 +96,12 @@ namespace Izlaz_iz_lavirinta
             if (moving) return;
 
             Point pt = lavirint.Polje_by_XY(e.X, e.Y);
+            if (lavirint.Start == pt)
+                lavirint.Start = new Point(-1, -1);
+            else if (lavirint.Finish == pt)
+                lavirint.Finish = new Point(-1, -1);
             lavirint.polja[pt.Y,pt.X].Click(g, 0, lavirint.sveZazeto_onStart);
+
         }
 
 
@@ -134,6 +139,8 @@ namespace Izlaz_iz_lavirinta
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
+            if (g == null)
+                return;
             g.Clear(BackColor);
             g.Dispose();
             g = CreateGraphics();
