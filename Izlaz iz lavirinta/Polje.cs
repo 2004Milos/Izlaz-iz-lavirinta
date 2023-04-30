@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
-using Windows.ApplicationModel.Appointments;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Izlaz_iz_lavirinta
@@ -17,8 +11,8 @@ namespace Izlaz_iz_lavirinta
         public Point Pozicija;
         public SolidBrush sb;
         
-        public int str;
-        public int xstart, ystart;
+        public int stranica;
+        public static int xstart, ystart;
 
         public double G, H;
         public Polje parent;
@@ -28,28 +22,28 @@ namespace Izlaz_iz_lavirinta
         {
             this.Pozicija = pozicija;
             this.stanje = stanje;
-            this.str = str;
+            this.stranica = str;
 
-            this.xstart = xstart;
-            this.ystart = ystart;
+            Polje.xstart = xstart;
+            Polje.ystart = ystart;
 
             sb = new SolidBrush((stanje == StanjePolja.zid) ? Boje.boja_Zid : Boje.boja_Slobodno);
         }
 
         public void Crtaj(Graphics g)
         {
-            g.FillRectangle(sb, xstart+Pozicija.X * (str + 2), ystart+Pozicija.Y * (str + 2), str, str);
+            g.FillRectangle(sb, xstart+Pozicija.X * (stranica + 2), ystart+Pozicija.Y * (stranica + 2), stranica, stranica);
 
             if (stanje == StanjePolja.start)
                 using (Image startImage = Properties.Resources.start)
                 {
-                    g.DrawImage(startImage, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
+                    g.DrawImage(startImage, xstart + Pozicija.X * (stranica + 2), ystart + Pozicija.Y * (stranica + 2), stranica, stranica);
                     G = 0;
                 }
             else if (stanje == StanjePolja.cilj)
                 using (Image finishImage = Properties.Resources.finish)
                 {
-                    g.DrawImage(finishImage, xstart + Pozicija.X * (str + 2), ystart + Pozicija.Y * (str + 2), str, str);
+                    g.DrawImage(finishImage, xstart + Pozicija.X * (stranica + 2), ystart + Pozicija.Y * (stranica + 2), stranica, stranica);
                 }
         }
 
@@ -104,9 +98,9 @@ namespace Izlaz_iz_lavirinta
 
         public void Resize(int stranica, int xstart, int ystart)
         {
-            this.str = stranica;
-            this.xstart = xstart;
-            this.ystart = ystart;
+            this.stranica = stranica;
+            Polje.xstart = xstart;
+            Polje.ystart = ystart;
         }
 
         public void Restart(bool zauzeto, Graphics g)
