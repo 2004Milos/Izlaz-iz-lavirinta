@@ -315,32 +315,32 @@ namespace Izlaz_iz_lavirinta
         public void BFS(bool strane4, Graphics g)
         {
             simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
-            Queue<Polje> queue = new Queue<Polje>();
-            HashSet<Polje> visited = new HashSet<Polje>();
+            Queue<Polje> Polja_za_proveru = new Queue<Polje>();
+            HashSet<Polje> poseceno = new HashSet<Polje>();
 
-            Polje startPolje = polja[Start.Y, Start.X];
-            queue.Enqueue(startPolje);
+            Polje startno_polje = polja[Start.Y, Start.X];
+            Polja_za_proveru.Enqueue(startno_polje); //dodaje se polje u red
 
-            while (queue.Count > 0)
+            while (Polja_za_proveru.Count > 0)
             {
-                Polje trenutno = queue.Dequeue();
+                Polje trenutno = Polja_za_proveru.Dequeue();
 
-                // Check if the current node is the goal node
+                //Proveriti da li je trenutno poqe traženo polje - cilj
                 if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
-                    trenutno.CrtajPutanju(g, 2*simulator_delta_t);
+                    trenutno.CrtajPutanju(g, 2*simulator_delta_t); //Grafički prikaz rekonstruisane putanje na lavirintu
                     return;
                 }
 
                 // Mark the current node as visited
-                visited.Add(trenutno);
+                poseceno.Add(trenutno);
                 trenutno.MarkOtvoren(g);
                 Thread.Sleep(simulator_delta_t);
 
                 // Iterate through the neighboring nodes
                 foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (visited.Contains(sused) || queue.Contains(sused))
+                    if (poseceno.Contains(sused) || Polja_za_proveru.Contains(sused))
                     {
                         continue;
                     }
@@ -349,7 +349,7 @@ namespace Izlaz_iz_lavirinta
                     sused.parent = trenutno;
 
                     // Add the neighbor to the queue
-                    queue.Enqueue(sused);
+                    Polja_za_proveru.Enqueue(sused);
                 }
             }
         }
