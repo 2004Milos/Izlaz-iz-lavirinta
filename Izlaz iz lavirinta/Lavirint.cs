@@ -311,9 +311,14 @@ namespace Izlaz_iz_lavirinta
                 }
             }
         }
-
+        /// <summary>
+        /// Algoritam pretrage u dubinu
+        /// </summary>
+        /// <param name="strane4"> Logička promenljiva, pokazuje da li je dozvoljeno dijagonalno kretanje ili ne</param>
+        /// <param name="g"> Grafika korisničkog interfejsak po kojoj se iscrtava prolaz kroz lavirint </param>
         public void BFS(bool strane4, Graphics g)
         {
+            //Izračunava se vreme potrebno da bi se algoritam uspori radi bolje preglednosti
             simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
             Queue<Polje> Polja_za_proveru = new Queue<Polje>();
             HashSet<Polje> poseceno = new HashSet<Polje>();
@@ -332,23 +337,20 @@ namespace Izlaz_iz_lavirinta
                     return;
                 }
 
-                // Mark the current node as visited
+                //Trenutno poqe se označava kao posećeno, kako se ne bi ponovilo
                 poseceno.Add(trenutno);
-                trenutno.MarkOtvoren(g);
-                Thread.Sleep(simulator_delta_t);
+                trenutno.MarkOtvoren(g); //Grafiički prikaz otvorenog i proverenog polja
+                Thread.Sleep(simulator_delta_t); //Usporavanje algortma radi bolje vidljivosti 
 
-                // Iterate through the neighboring nodes
+                // Prolazak kroz sva susedna polja trenutnog polja, susedna poqa se određuju i na osnovu toga da li je dozvoljeno dijagnalno kretanje
                 foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (poseceno.Contains(sused) || Polja_za_proveru.Contains(sused))
-                    {
+                    if (poseceno.Contains(sused) || Polja_za_proveru.Contains(sused)) //ako je već posećeno ili dodato u red, preskače se
                         continue;
-                    }
 
-                    // Set the parent of the neighbor to the current node
+                    //Trenutno polje se postavlja kao prethodničko susednom polju
                     sused.parent = trenutno;
-
-                    // Add the neighbor to the queue
+                    //susedno polje se dodaje na kraj reda kako bi bilo provereno tokom iteracije
                     Polja_za_proveru.Enqueue(sused);
                 }
             }
