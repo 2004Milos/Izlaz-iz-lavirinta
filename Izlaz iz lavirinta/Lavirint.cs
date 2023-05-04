@@ -215,6 +215,11 @@ namespace Izlaz_iz_lavirinta
             return nodes.OrderBy(n => n.H).First();
         }
 
+        public Polje MinimumG(HashSet<Polje> nodes)
+        {
+            return nodes.OrderBy(n => n.G).First();
+        }
+
 
         public void BestFS(bool strane4, Graphics g)
         {
@@ -255,62 +260,80 @@ namespace Izlaz_iz_lavirinta
             }
         }
 
-
+        /// <summary>
+        /// Dajkstrin algoritam pretrage najkraće putanje
+        /// </summary>
+        /// <param name="strane4"> Logička promenljiva, pokazuje da li je dozvoljeno dijagonalno kretanje ili ne</param>
+        /// <param name="g"> Grafika korisničkog interfejsak po kojoj se iscrtava prolaz kroz lavirint </param>
         public void Dijkstra(bool strane4, Graphics g)
         {
-            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
-            HashSet<Polje> openList = new HashSet<Polje>();
-            HashSet<Polje> closedList = new HashSet<Polje>();
+            //Izračunava se vreme potrebno da bi se algoritam usporio radi bolje preglednosti, prema proporciji
+            //25 : P = X : 40, P-povrsina pravougaonika odredjena start i finish tackama - obrnuta proporcija dobijena testriranjem
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));
 
-            // Initialize start node
-            Polje startNode = polja[Start.Y, Start.X];
-            startNode.G = 0;
-            openList.Add(startNode);
+            HashSet<Polje> open = new HashSet<Polje>();
+            HashSet<Polje> closed = new HashSet<Polje>();
 
-            while (openList.Count > 0)
+            Polje StartnoPolje = polja[Start.Y, Start.X];
+
+            // Startno polje je za 0 odaljeno samo od sebe
+            StartnoPolje.G = 0;
+
+            // Startno polje se dodaje u open listu radi dalje provere
+            open.Add(StartnoPolje);
+
+            while (open.Count > 0)
             {
-                // Find the node with the lowest cost in the open list
-                Polje trenutno = openList.OrderBy(n => n.G).First();
+                // Za trenutno polje se uzima polje iz open liste koje je je najbliže startnom polju - minimalan G faktor
+                // Ovaj korak se može izbeći korišćenjem priority queue-a, što u ovom slučaju nije bilo potpuno adekvatno
+                Polje trenutno = MinimumG(open);
 
+                // Odabrano trenutno polje se uklanja iz skupa otvorenih i stavlja u skup zatvorenih polja, kako se ne bi ponovilo
+                open.Remove(trenutno);
+                closed.Add(trenutno);
 
-                openList.Remove(trenutno);
-                closedList.Add(trenutno);
-
-                // Iterate over the neighbor nodes
+                // Prolazak kroz sva susedna polja, po dijagonali ili ne, što je određeno sa strane4
                 foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (closedList.Contains(sused))
+                    // Ako je polje već proverno, preskače se
+                    if (closed.Contains(sused))
                         continue;
 
-
-                    double tentativeG = trenutno.G + 1;
+                    // Razdaljina od starnog polja do suseda (moguceG) je jednaka zbiru razdaljina startnog od trenutnog i trenutnog od susednog
+                    // Razdaljina trenutnog od susednog je 1 ako dele stranicu, a sqrt(2) ako su susedni dijagonalno
+                    double moguceG = trenutno.G + 1;
                     if (sused.Pozicija.X != trenutno.Pozicija.X && sused.Pozicija.Y != trenutno.Pozicija.Y)
-                        tentativeG += Math.Sqrt(2) - 1; 
-                                                                       
-                    if (!openList.Contains(sused) || tentativeG < sused.G)
+                        moguceG += Math.Sqrt(2) - 1; 
+
+                    // a) Ako je polje neotvoreno to znaci da mu nikad nije dodeljena G vrednost, pa u tom slucaju svakako treba postaviti G vrednost prvi put
+                    // b) G vrednost treba izmeniti kada je nova manja (bolja) od G vrednosti koja je izračunata ranije na drugi način (iz druge putanje)
+                    // Kada se postavlja nova G vrednost, treba postaviti i novog prethodnika polja, jer je pronadjen novi optimalniji put
+                    if (!open.Contains(sused) || moguceG < sused.G)
                     {
-                        sused.G = tentativeG;
+                        sused.G = moguceG;
                         sused.parent = trenutno;
 
-                        if (!openList.Contains(sused))
+                        // Ako polje već nije, treba da dodati u skup otvorenih polja, i grafički ga označiti kao otvoreno
+                        if (!open.Contains(sused))
                         {
-                            openList.Add(sused);
+                            open.Add(sused);
                             sused.MarkOtvoren(g);
+
+                            // Usporavanje izvršavanja radi preglednosti
                             Thread.Sleep(simulator_delta_t);
                         }
                     }
 
-                    // If the current node is the goal node, we have found the shortest path
+                    //Ako je traženo polje pronađeno, pretraga je gotova i putanja se može iscrtati pomoću pokazivača na roditeljska polja
                     if (sused.Pozicija.X == Finish.X && sused.Pozicija.Y == Finish.Y)
                     {
-                        // Reconstruct the path by following the parent pointers
                         sused.CrtajPutanju(g, 2*simulator_delta_t);
-
                         return;
                     }
                 }
             }
         }
+
         /// <summary>
         /// Algoritam pretrage u širinu
         /// </summary>
