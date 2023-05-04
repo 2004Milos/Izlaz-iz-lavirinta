@@ -312,79 +312,109 @@ namespace Izlaz_iz_lavirinta
             }
         }
         /// <summary>
-        /// Algoritam pretrage u dubinu
+        /// Algoritam pretrage u širinu
         /// </summary>
         /// <param name="strane4"> Logička promenljiva, pokazuje da li je dozvoljeno dijagonalno kretanje ili ne</param>
         /// <param name="g"> Grafika korisničkog interfejsak po kojoj se iscrtava prolaz kroz lavirint </param>
         public void BFS(bool strane4, Graphics g)
         {
-            //Izračunava se vreme potrebno da bi se algoritam uspori radi bolje preglednosti
-            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
+            //Izračunava se vreme potrebno da bi se algoritam usporio radi bolje preglednosti, prema proporciji
+            //25 : P = X : 40, P-povrsina pravougaonika odredjena start i finish tackama - obrnuta proporcija dobijena testriranjem
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));
+            
             Queue<Polje> Polja_za_proveru = new Queue<Polje>();
             HashSet<Polje> poseceno = new HashSet<Polje>();
-
             Polje startno_polje = polja[Start.Y, Start.X];
-            Polja_za_proveru.Enqueue(startno_polje); //dodaje se polje u red
 
+            //Startno polje se dodaje polje u red za proveru
+            Polja_za_proveru.Enqueue(startno_polje);
+
+            //Iteracija se ponavlja sve dok ima mogućnosti za proveru
             while (Polja_za_proveru.Count > 0)
             {
+                //Trenutno polje se skida sa početka reda, to je polje koje je najduže bilo u redu (FIFO)
                 Polje trenutno = Polja_za_proveru.Dequeue();
 
-                //Proveriti da li je trenutno poqe traženo polje - cilj
+                //Ako je trenutno polje traženo, pretraga je uspešno završena, a rekosnstruisana putanja se iscrtava
                 if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
                     trenutno.CrtajPutanju(g, 2*simulator_delta_t); //Grafički prikaz rekonstruisane putanje na lavirintu
                     return;
                 }
 
-                //Trenutno poqe se označava kao posećeno, kako se ne bi ponovilo
+                //Trenutno polje se dodaje u skup posećenih polja, da se ne bi ponavljalo
                 poseceno.Add(trenutno);
-                trenutno.MarkOtvoren(g); //Grafiički prikaz otvorenog i proverenog polja
-                Thread.Sleep(simulator_delta_t); //Usporavanje algortma radi bolje vidljivosti 
 
-                // Prolazak kroz sva susedna polja trenutnog polja, susedna poqa se određuju i na osnovu toga da li je dozvoljeno dijagnalno kretanje
+                //Grafiički prikaz otvorenog i proverenog polja
+                trenutno.MarkOtvoren(g);
+
+                //Usporavanje algortma radi bolje preglednosti 
+                Thread.Sleep(simulator_delta_t);
+
+                // Prolazak kroz sva susedna polja trenutnog polja, susedna polja se određuju i na osnovu toga da li je dozvoljeno dijagnalno kretanje
                 foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (poseceno.Contains(sused) || Polja_za_proveru.Contains(sused)) //ako je već posećeno ili dodato u red, preskače se
+                    //Ako je već posećeno ili dodato u red, preskače se
+                    if (poseceno.Contains(sused) || Polja_za_proveru.Contains(sused))
                         continue;
 
                     //Trenutno polje se postavlja kao prethodničko susednom polju
                     sused.parent = trenutno;
-                    //susedno polje se dodaje na kraj reda kako bi bilo provereno tokom iteracije
+                    //Susedno polje se dodaje na kraj reda kako bi bilo provereno tokom dalje iteracije
                     Polja_za_proveru.Enqueue(sused);
                 }
             }
         }
 
 
-
+        /// <summary>
+        /// Algoritam pretrage u dubinu - DFS
+        /// </summary>
+        /// <param name="strane4"> Logička promenljiva, pokazuje da li je dozvoljeno dijagonalno kretanje ili ne</param>
+        /// <param name="g"> Grafika korisničkog interfejsak po kojoj se iscrtava prolaz kroz lavirint </param>
         public void DFS(bool strane4, Graphics g)
         {
-            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
-            Stack<Polje> stack = new Stack<Polje>();
-            HashSet<Polje> visited = new HashSet<Polje>();
+            //Izračunava se vreme potrebno da bi se algoritam uspori radi bolje preglednosti, prema proporciji 
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));
+            
+            Stack<Polje> Polja_za_proveru = new Stack<Polje>();
+            HashSet<Polje> poseceno = new HashSet<Polje>();
             Polje startNode = polja[Start.Y, Start.X];
-            stack.Push(startNode);
 
-            while (stack.Count > 0)
+            //Početno polje se dodaje u stek polja za proveru
+            Polja_za_proveru.Push(startNode);
+
+            //Iteracija se ponavlja sve dok ima mogućnosti za proveru
+            while (Polja_za_proveru.Count > 0)
             {
-                Polje currentNode = stack.Pop();
-                visited.Add(currentNode);
-                currentNode.MarkOtvoren(g);
-                Thread.Sleep(simulator_delta_t);
+                //Za trenutno polje u ovom momentu se skida polje sa kraja steka
+                Polje trenutno = Polja_za_proveru.Pop();
 
-                if (currentNode.Pozicija.X == Finish.X && currentNode.Pozicija.Y == Finish.Y)
+                //Ako je trenutno polje traženo, pretraga je uspešno završena, a rekosnstruisana putanja se iscrtava
+                if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
-                    currentNode.CrtajPutanju(g, 2*simulator_delta_t);
+                    trenutno.CrtajPutanju(g, 2 * simulator_delta_t);
                     return;
                 }
 
-                foreach (Polje neighbor in SusednaPolja(currentNode, strane4))
+                //trenutno polje se dodaje u skup posećenih polja, da se ne bi ponavljalo
+                poseceno.Add(trenutno);
+
+                //Grafički prikaz prolaza kroz polje
+                trenutno.MarkOtvoren(g);
+
+                //Usporavanje algoitma radi bolje preglednosti
+                Thread.Sleep(simulator_delta_t);
+
+                foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (!visited.Contains(neighbor))
+                    if (!poseceno.Contains(sused))
                     {
-                        neighbor.parent = currentNode;
-                        stack.Push(neighbor);
+                        //Neposećeni sused se dodaje na kraj hijerarhije u dosadašnjoj putanji (pomoću pokazivača na prethodnika)
+                        sused.parent = trenutno;
+
+                        //Taj sused se dodaje na kraj steka, kako bi bio proveren
+                        Polja_za_proveru.Push(sused);
                     }
                 }
             }
