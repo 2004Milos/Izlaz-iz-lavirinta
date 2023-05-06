@@ -82,9 +82,9 @@ namespace Izlaz_iz_lavirinta
 
         public Point Polje_by_XY(int x, int y)
         {
-            int i = (int)((x - xstart) / (stranicaPolja+2));
-            int j = (int)((y - ystart) / (stranicaPolja+2));
-            return new Point(i > (Dimenzije.Item1 - 1) ? (Dimenzije.Item1 - 1) : i, j > (Dimenzije.Item2 - 1) ? (Dimenzije.Item2 - 1) : j);
+            int i = Math.Clamp((int)((x - xstart) / (stranicaPolja+2)), 0, Dimenzije.Item1-1);
+            int j = Math.Clamp((int)((y - ystart) / (stranicaPolja+2)), 0, Dimenzije.Item2-1);
+            return new Point(i, j);
         }
 
         public void SetStartFinish(Graphics g, int x, int y, bool start)
@@ -122,69 +122,77 @@ namespace Izlaz_iz_lavirinta
             }
         }
 
+        /// <summary>
+        /// Pohlepni algoritam pretrage po najboljem svojstvu
+        /// </summary>
+        /// <param name="strane4"> Logička promenljiva, pokazuje da li je dozvoljeno dijagonalno kretanje ili ne</param>
+        /// <param name="g"> Grafika korisničkog interfejsak po kojoj se iscrtava prolaz kroz lavirint </param>
+        
         public void AStar(bool strane4, Graphics g)
         {
-            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X)+1) * (Math.Abs(Start.Y - Finish.Y)+1)));//25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
-            HashSet<Polje> openList = new HashSet<Polje>();
-            HashSet<Polje> closedList = new HashSet<Polje>();
+            //Izračunava se vreme potrebno da bi se algoritam usporio radi bolje preglednosti, prema proporciji
+            //25 : P = X : 40, P-povrsina pravougaonika odredjena start i finish tackama - obrnuta proporcija dobijena testriranjem
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X) + 1) * (Math.Abs(Start.Y - Finish.Y) + 1))); 
+            HashSet<Polje> open = new HashSet<Polje>();
+            HashSet<Polje> closed = new HashSet<Polje>();
 
-            // Calculate the heuristic values (H) for each node
+            // Izračunavaju se predviđene razdawine između polja lavirinta i cilja, heurističkom metodom
             CalculateH(strane4);
 
-            // Add the start node to the open list
-            openList.Add(polja[Start.Y, Start.X]);
+            // Početno poqe se dodaje u skup otvorenih polja
+            open.Add(polja[Start.Y, Start.X]);
 
-            // Loop until there are no more nodes to explore
-            while (openList.Count > 0)
+            // Iteracija traje dok ima mogućnosti dalje pretrage ili do trenutka kada je prektinuta pronalaskom cilja
+            while (open.Count > 0)
             {
-                // Get the node with the lowest F value from the open list
-                Polje trenutno = MinimumF(openList);
+                // Za trenutno polje se uzima polje iz open skupa sa najmanjom F vrednošću
+                Polje trenutno = MinimumF(open);
 
-                // Mark the trenutno node as visited
-                trenutno.MarkOtvoren(g);
                 Thread.Sleep(simulator_delta_t);
 
-                // Remove the trenutno node from the open list and add it to the closed list
-                openList.Remove(trenutno);
-                closedList.Add(trenutno);
+                // Trenutno polje se uklanja iz skupa otvorenih i stavlja u skup zatvorenih polja
+                open.Remove(trenutno);
+                closed.Add(trenutno);
 
-                // Check if the trenutno node is the goal node
+                // Ako je cilj pronđen, pretraga je gotova i putanja može da se iscrta
                 if (trenutno.Pozicija.X == Finish.X && trenutno.Pozicija.Y == Finish.Y)
                 {
                     trenutno.CrtajPutanju(g, 2*simulator_delta_t);
                     return;
                 }
 
-                // Iterate through the neighboring nodes
-                foreach (Polje neighbor in SusednaPolja(trenutno, strane4))
+                foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    // Skip nodes that are already in the closed list
-                    if (closedList.Contains(neighbor))
+                    // Posećena polja ne treba ponovo da se obilaze, pa se preskaču
+                    if (closed.Contains(sused))
                     {
                         continue;
                     }
 
-                    // Calculate the tentative G value (the cost to get to this node from the start node)
-                    double tentativeG = trenutno.G + (neighbor.Pozicija.X != trenutno.Pozicija.X && neighbor.Pozicija.Y != trenutno.Pozicija.Y ? Math.Sqrt(2) : 1);
+                    // Razdaljina od starnog polja do suseda (moguceG) je jednaka zbiru razdaljina startnog od trenutnog i trenutnog od susednog
+                    // Razdaljina trenutnog od susednog je 1 ako dele stranicu, a sqrt(2) ako su susedni dijagonalno
+                    double moguceG = trenutno.G + (sused.Pozicija.X != trenutno.Pozicija.X && sused.Pozicija.Y != trenutno.Pozicija.Y ? Math.Sqrt(2) : 1);
 
-                    // Check if the neighbor is already in the open list
-                    if (openList.Contains(neighbor))
+                    // a) Ako je polje neotvoreno to znaci da mu nikad nije dodeljena G vrednost, pa u tom slucaju svakako treba postaviti G vrednost prvi put
+                    // b) G vrednost treba izmeniti kada je nova manja (bolja) od G vrednosti koja je izračunata ranije na drugi način (iz druge putanje)
+                    // Kada se postavlja nova G vrednost, treba postaviti i novog prethodnika polja, jer je pronadjen novi optimalniji put
+                    if (!open.Contains(sused) || moguceG < sused.G)
                     {
-                        // Skip this neighbor if it already has a lower G value
-                        if (tentativeG >= neighbor.G)
+                        sused.G = moguceG;
+                        sused.parent = trenutno;
+
+                        // Ako polje već nije, treba da dodati u skup otvorenih polja, i grafički ga označiti kao otvoreno
+                        if (!open.Contains(sused))
                         {
-                            continue;
+                            open.Add(sused);
+
+                            // susedno polje se označava kao otvoreno u GKI
+                            sused.MarkOtvoren(g);
+
+                            // Usporavanje izvršavanja radi preglednosti
+                            Thread.Sleep(simulator_delta_t);
                         }
                     }
-                    else
-                    {
-                        // Add the neighbor to the open list if it's not already there
-                        openList.Add(neighbor);
-                    }
-
-                    // Update the G and parent values for the neighbor
-                    neighbor.G = tentativeG;
-                    neighbor.parent = trenutno;
                 }
             }
         }
@@ -199,9 +207,11 @@ namespace Izlaz_iz_lavirinta
                     double dX = Math.Abs(Finish.X - j);
 
                     if (strane4)
-                        polja[i, j].H = dY + dX; //Manhetan calc
+                        //Manhetn rastojanje
+                        polja[i, j].H = dY + dX; 
                     else
-                        polja[i, j].H = (Math.Sqrt(2) * Math.Min(dY, dX) + Math.Abs(dY - dX)); //Octile calc
+                        //Oktilno rastojanje
+                        polja[i, j].H = (Math.Sqrt(2) * Math.Min(dY, dX) + Math.Abs(dY - dX)); 
                 }
         }
 
@@ -220,37 +230,57 @@ namespace Izlaz_iz_lavirinta
             return nodes.OrderBy(n => n.G).First();
         }
 
-
+        /// <summary>
+        /// Pohlepni algoritam pretrage po najboljem svojstvu
+        /// </summary>
+        /// <param name="strane4"> Logička promenljiva, pokazuje da li je dozvoljeno dijagonalno kretanje ili ne</param>
+        /// <param name="g"> Grafika korisničkog interfejsak po kojoj se iscrtava prolaz kroz lavirint </param>
         public void BestFS(bool strane4, Graphics g)
         {
-            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X) + 1) * (Math.Abs(Start.Y - Finish.Y) + 1))); //25 : 50 = X : P, P-povrsina pravougaonika odredjena start i finish tackama
-            HashSet<Polje> openList = new HashSet<Polje>();
-            HashSet<Polje> closedList = new HashSet<Polje>();
+            //Izračunava se vreme potrebno da bi se algoritam usporio radi bolje preglednosti, prema proporciji
+            //25 : P = X : 40, P-povrsina pravougaonika odredjena start i finish tackama - obrnuta proporcija dobijena testriranjem
+            simulator_delta_t = (int)(25 * 40 / ((Math.Abs(Start.X - Finish.X) + 1) * (Math.Abs(Start.Y - Finish.Y) + 1)));
+
+            HashSet<Polje> open = new HashSet<Polje>();
+            HashSet<Polje> closed = new HashSet<Polje>();
             CalculateH(strane4);
 
-            openList.Add(polja[Start.Y, Start.X]);
+            // Po;etno polje se oyna;ava kao otvoreno, dodavanjem u skup
+            open.Add(polja[Start.Y, Start.X]);
 
-            while (openList.Count > 0)
+            while (open.Count > 0)
             {
-                Polje trenutno = MinimumH(openList);
-                openList.Remove(trenutno);
-                closedList.Add(trenutno);
+                //Za trenutno polje se uzima ono koje trenutno ima najbolju H vrednost u skupu otvorenih polja
+                Polje trenutno = MinimumH(open);
+
+                //Trenutno polje se uklanja iz otvorenih, a dodaje u zatvorena polja
+                open.Remove(trenutno);
+                closed.Add(trenutno);
+
+                //Usporavanje izvršavanja radi preglednosti
                 Thread.Sleep(simulator_delta_t);
+
+                //Grafički prikaz otvorenog polja na GKI 
                 trenutno.MarkOtvoren(g);
 
                 foreach (Polje sused in SusednaPolja(trenutno, strane4))
                 {
-                    if (closedList.Contains(sused))
+                    //Ako je sused zatvoren, preskače se kako se ne bi ponavljao
+                    if (closed.Contains(sused))
                     {
                         continue;
                     }
 
-                    if (!openList.Contains(sused))
+                    //Ako već nije sused se dodaje u skup otvorenih polja
+                    if (!open.Contains(sused))
                     {
-                        openList.Add(sused);
+                        open.Add(sused);
                     }
+
+                    //Trenutno polje se postavlja kao prethodnik susednom u hijerarhiji putanje
                     sused.parent = trenutno;
 
+                    //Ako je sused traženo polje, pretraga je uspešno završena, i putanja se iscrtava
                     if (sused.Pozicija.X == Finish.X && sused.Pozicija.Y == Finish.Y)
                     {
                         sused.CrtajPutanju(g, 2 * simulator_delta_t);
@@ -368,11 +398,6 @@ namespace Izlaz_iz_lavirinta
                 //Trenutno polje se dodaje u skup posećenih polja, da se ne bi ponavljalo
                 poseceno.Add(trenutno);
 
-                //Grafiički prikaz otvorenog i proverenog polja
-                trenutno.MarkOtvoren(g);
-
-                //Usporavanje algortma radi bolje preglednosti 
-                Thread.Sleep(simulator_delta_t);
 
                 // Prolazak kroz sva susedna polja trenutnog polja, susedna polja se određuju i na osnovu toga da li je dozvoljeno dijagnalno kretanje
                 foreach (Polje sused in SusednaPolja(trenutno, strane4))
@@ -385,6 +410,12 @@ namespace Izlaz_iz_lavirinta
                     sused.parent = trenutno;
                     //Susedno polje se dodaje na kraj reda kako bi bilo provereno tokom dalje iteracije
                     Polja_za_proveru.Enqueue(sused);
+
+                    //Usporavanje algortma radi bolje preglednosti 
+                    Thread.Sleep(simulator_delta_t);
+
+                    //Grafiički prikaz otvorenog polja
+                    sused.MarkOtvoren(g);
                 }
             }
         }
